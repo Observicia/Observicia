@@ -1,0 +1,6 @@
+aiohttp
+numpy
+opentelemetry-api
+psutil
+pytest
+tiktoken

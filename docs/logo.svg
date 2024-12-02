@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640">
+  <!-- Background -->
+  <rect width="1280" height="640" fill="#0f172a"/>
+  
+  <!-- Logo Group - Left Side -->
+  <g transform="translate(200, 120) scale(0.8)">
+    <!-- Background circle -->
+    <circle cx="200" cy="200" r="180" fill="#1a365d" />
+    
+    <!-- Orbital rings representing observability -->
+    <g transform="rotate(25, 200, 200)">
+      <ellipse cx="200" cy="200" rx="160" ry="60" fill="none" stroke="#4299e1" stroke-width="4" opacity="0.6"/>
+      <ellipse cx="200" cy="200" rx="160" ry="60" fill="none" stroke="#4299e1" stroke-width="4" opacity="0.6" transform="rotate(60, 200, 200)"/>
+      <ellipse cx="200" cy="200" rx="160" ry="60" fill="none" stroke="#4299e1" stroke-width="4" opacity="0.6" transform="rotate(120, 200, 200)"/>
+    </g>
+    
+    <!-- Central circle -->
+    <circle cx="200" cy="200" r="60" fill="#2b6cb0"/>
+    
+    <!-- Shield segments -->
+    <path d="M 160 280 A 100 100 0 0 0 240 280" fill="none" stroke="#63b3ed" stroke-width="12" stroke-linecap="round"/>
+    <path d="M 140 250 A 120 120 0 0 0 260 250" fill="none" stroke="#63b3ed" stroke-width="12" stroke-linecap="round"/>
+    
+    <!-- Data points -->
+    <circle cx="140" cy="250" r="6" fill="#bee3f8"/>
+    <circle cx="260" cy="250" r="6" fill="#bee3f8"/>
+    <circle cx="160" cy="280" r="6" fill="#bee3f8"/>
+    <circle cx="240" cy="280" r="6" fill="#bee3f8"/>
+    
+    <!-- Pulse rings -->
+    <circle cx="200" cy="200" r="80" fill="none" stroke="#90cdf4" stroke-width="2" opacity="0.5">
+      <animate attributeName="r" from="80" to="100" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" from="0.5" to="0" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="200" r="80" fill="none" stroke="#90cdf4" stroke-width="2" opacity="0.5">
+      <animate attributeName="r" from="80" to="100" dur="2s" begin="1s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" from="0.5" to="0" dur="2s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Text Group - Right Side -->
+  <g transform="translate(600, 240)">
+    <!-- Project Name -->
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#ffffff">
+      Observicia
+    </text>
+    
+    <!-- Cloud Native Badge -->
+    <g transform="translate(0, 60)">
+      <rect x="0" y="0" width="200" height="40" rx="20" fill="#4299e1"/>
+      <text x="100" y="28" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">
+        CLOUD NATIVE
+      </text>
+    </g>
+    
+    <!-- Purpose Text -->
+    <text x="0" y="140" font-family="Arial, sans-serif" font-size="24" fill="#94a3b8">
+      <tspan x="0" dy="0">Observability and Policy Control</tspan>
+      <tspan x="0" dy="40">for Cloud Native LLM Applications</tspan>
+    </text>
+  </g>
+</svg>
