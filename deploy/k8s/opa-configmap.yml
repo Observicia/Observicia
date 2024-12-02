@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-policies
+  namespace: observability
+data:
+  policy.rego: |
+    package observicia
+    
+    default allow = true
+    
+    violation[msg] {
+      input.risk_level == "critical"
+      msg := "Critical risk level detected"
+    }
+    
+    violation[msg] {
+      input.token_count > 1000
+      msg := "Token limit exceeded"
+    }

@@ -1,0 +1,16 @@
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: observicia-cluster
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 8181  # OPA
+    hostPort: 8181
+  - containerPort: 4317  # OTEL GRPC
+    hostPort: 4317
+  - containerPort: 4318  # OTEL HTTP
+    hostPort: 4318
+  - containerPort: 9090  # Prometheus
+    hostPort: 9090
+  - containerPort: 16686 # Jaeger UI
+    hostPort: 16686
