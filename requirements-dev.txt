@@ -1,0 +1,12 @@
+pytest
+pytest-cov
+black
+isort
+flake8
+mypy
+bandit
+safety
+pip-audit
+twine
+build
+wheel

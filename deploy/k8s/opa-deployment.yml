@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+  namespace: observability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      labels:
+        app: opa
+    spec:
+      containers:
+      - name: opa
+        image: openpolicyagent/opa:latest
+        args:
+        - "run"
+        - "--server"
+        - "--addr=:8181"
+        - "--log-level=debug"
+        - "/policies/policy.rego"
+        ports:
+        - containerPort: 8181
+        volumeMounts:
+        - name: opa-policies
+          mountPath: /policies
+      volumes:
+      - name: opa-policies
+        configMap:
+          name: opa-policies
