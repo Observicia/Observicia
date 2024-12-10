@@ -3,7 +3,7 @@
 PYTHON := python3.11
 PACKAGE_NAME := observicia
 TEST_PATH := sdk/tests
-COVERAGE_THRESHOLD := 35
+COVERAGE_THRESHOLD := 50
 
 help:
 	@echo "Available commands:"

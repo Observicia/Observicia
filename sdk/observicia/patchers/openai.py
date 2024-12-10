@@ -30,6 +30,7 @@ class OpenAIPatcher:
         self._original_functions: Dict[str, Any] = {}
         self._token_tracker = token_tracker or TokenTracker()
         self._context = context or ObservabilityContext.get_current()
+        self._patched = False
         self.logger = ObserviciaLogger("OpenAIPatcher",
                                        console_output=False,
                                        file_output=log_file,
@@ -37,8 +38,14 @@ class OpenAIPatcher:
 
     def patch(self) -> Dict[str, Any]:
         """Apply patches to OpenAI SDK functions."""
+        if self._patched:
+            return self._original_functions
+
         try:
-            original_functions = {}
+            original_functions = {
+                'chat_completions.create': ChatCompletions.create,
+                'async_chat_completions.create': AsyncChatCompletions.create
+            }
 
             # Patch completions
             if hasattr(AsyncCompletions, "create"):
@@ -97,22 +104,37 @@ class OpenAIPatcher:
                 Images.generate = self._wrap_image_generation(Images.generate)
 
             self._original_functions = original_functions
+            self._patched = True
             return original_functions
 
         except ImportError as e:
             raise ImportError(f"OpenAI SDK not installed: {str(e)}")
         except Exception as e:
+            self._rollback_patches()
             raise RuntimeError(f"Error patching OpenAI SDK: {str(e)}")
 
-    def unpatch(self, original_functions: Dict[str, Any]) -> None:
+    def unpatch(self,
+                original_functions: Optional[Dict[str, Any]] = None) -> None:
         """Restore original OpenAI SDK functions."""
+        if not self._patched:
+            return
+
         try:
+            original_functions = original_functions or self._original_functions
             for func_path, original_func in original_functions.items():
                 module_path, func_name = func_path.split('.')
                 if hasattr(globals().get(module_path), func_name):
                     setattr(globals()[module_path], func_name, original_func)
+
+            self._patched = False
+            self._original_functions = {}
+
         except Exception as e:
             raise RuntimeError(f"Error unpatching OpenAI SDK: {str(e)}")
+
+        def _rollback_patches(self) -> None:
+            """Rollback patches if patching fails."""
+            self.unpatch()
 
     def _wrap_chat_completion(self, func: Any) -> Any:
         """Wrap sync chat completion with tracing and token tracking."""
@@ -530,5 +552,4 @@ class OpenAIPatcher:
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Cleanup when exiting context."""
-        if self._original_functions:
-            self.unpatch(self._original_functions)
+        self.unpatch(self._original_functions)
