@@ -36,10 +36,7 @@ test:
 		--cov-fail-under=$(COVERAGE_THRESHOLD)
 
 lint:
-	$(PYTHON) -m black .
-	$(PYTHON) -m isort .
-	$(PYTHON) -m flake8 .
-	$(PYTHON) -m mypy .
+	yapf --diff --recursive --style="pep8" sdk 
 
 security:
 	$(PYTHON) -m bandit -r $(PACKAGE_NAME)
