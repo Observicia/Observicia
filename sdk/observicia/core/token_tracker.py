@@ -16,7 +16,7 @@ class TokenUsage:
 
 
 class TokenTracker:
-    """Thread-safe token tracker for multiple LLM providers."""
+    """token tracker for multiple LLM providers."""
 
     def __init__(self, retention_period: timedelta = timedelta(days=7)):
         self._lock = threading.Lock()
@@ -28,10 +28,11 @@ class TokenTracker:
     def update(self, provider: str, prompt_tokens: int,
                completion_tokens: int) -> None:
         """Update token usage for a provider."""
+        usage = TokenUsage(prompt_tokens=prompt_tokens,
+                           completion_tokens=completion_tokens,
+                           total_tokens=prompt_tokens + completion_tokens)
+
         with self._lock:
-            usage = TokenUsage(prompt_tokens=prompt_tokens,
-                               completion_tokens=completion_tokens,
-                               total_tokens=prompt_tokens + completion_tokens)
             self._usage_by_provider[provider].append(usage)
             self._cleanup_old_data(provider)
 
@@ -51,13 +52,18 @@ class TokenTracker:
         try:
             with self._lock:
                 self._stream_usage[session_id] = TokenUsage()
-            yield
+            yield self._stream_usage[session_id]
         finally:
             with self._lock:
                 if session_id in self._stream_usage:
                     final_usage = self._stream_usage[session_id]
-                    self.update(provider, final_usage.prompt_tokens,
-                                final_usage.completion_tokens)
+                    usage = TokenUsage(
+                        prompt_tokens=final_usage.prompt_tokens,
+                        completion_tokens=final_usage.completion_tokens,
+                        total_tokens=final_usage.prompt_tokens +
+                        final_usage.completion_tokens)
+                    self._usage_by_provider[provider].append(usage)
+                    self._cleanup_old_data(provider)
                     del self._stream_usage[session_id]
 
     def get_usage(self,
@@ -80,10 +86,11 @@ class TokenTracker:
             self,
             window: Optional[timedelta] = None) -> Dict[str, Dict[str, int]]:
         """Get token usage statistics for all providers."""
-        return {
-            provider: self.get_usage(provider, window)
-            for provider in self._usage_by_provider.keys()
-        }
+        with self._lock:
+            return {
+                provider: self.get_usage(provider, window)
+                for provider in self._usage_by_provider.keys()
+            }
 
     def _cleanup_old_data(self, provider: str) -> None:
         """Remove data older than the retention period."""
