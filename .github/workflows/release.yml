@@ -31,9 +31,21 @@ jobs:
         python -m pip install --upgrade pip
         pip install build twine
 
-    - name: Update version in setup.py
+    - name: Update version numbers
       run: |
+        # Update version in setup.py
         sed -i "s/version=\".*\"/version=\"${{ github.event.inputs.version }}\"/" setup.py
+
+        # Update version in __init__.py
+        init_file="sdk/observicia/__init__.py"
+        sed -i "s/__version__ = \".*\"/__version__ = \"${{ github.event.inputs.version }}\"/" "$init_file"
+
+        # Commit version changes
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add setup.py "$init_file"
+        git commit -m "Bump version to ${{ github.event.inputs.version }}"
+        git push
 
     - name: Build package
       run: python -m build
@@ -49,7 +61,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
         git tag -a v${{ github.event.inputs.version }} -m "Release version ${{ github.event.inputs.version }}"
         git push origin v${{ github.event.inputs.version }}
