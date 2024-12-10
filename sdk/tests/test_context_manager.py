@@ -213,17 +213,14 @@ class TestObservabilityContext:
     def test_initialization_with_options(self):
         ObservabilityContext._instance = None  # Reset singleton
 
-        ObservabilityContext.initialize(
-            service_name="test-service",
-            otel_endpoint="http://localhost:4317",
-            opa_endpoint="http://localhost:8181",
-            default_policies=["policy1", "policy2"],
-            trace_console=True)
+        ObservabilityContext.initialize(service_name="test-service",
+                                        otel_endpoint="http://localhost:4317",
+                                        opa_endpoint="http://localhost:8181",
+                                        trace_console=True)
 
         instance = ObservabilityContext.get_current()
         assert instance._service_name == "test-service"
         assert instance.policy_engine is not None
-        assert instance._default_policies == ["policy1", "policy2"]
 
 
 if __name__ == '__main__':

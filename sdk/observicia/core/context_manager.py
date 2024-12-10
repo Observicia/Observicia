@@ -132,8 +132,7 @@ class ContextManager:
                                parent_id=None,
                                attributes=initial_context or {},
                                session_id=session_id,
-                               user_id=self._current_user_id,
-                               active_policies=set(self._default_policies))
+                               user_id=self._current_user_id)
         self._sessions[session_id] = context
         return context
 

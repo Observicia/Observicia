@@ -1,0 +1,152 @@
+name: Nightly Package Release
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Nightly at midnight
+  workflow_dispatch:
+    inputs:
+      min_commits:
+        description: 'Minimum commits required for release'
+        required: false
+        default: '5'
+        type: string
+
+jobs:
+  nightly-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+        pip install -r requirements-dev.txt
+
+    - name: Run tests
+      run: make test
+
+    - name: Set minimum commits
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "MIN_COMMITS=${{ github.event.inputs.min_commits }}" >> $GITHUB_ENV
+        else
+          echo "MIN_COMMITS=5" >> $GITHUB_ENV
+        fi
+
+    - name: Check commit count since last tag
+      id: check_commits
+      run: |
+        # Get the latest tag
+        latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "Latest tag: $latest_tag"
+        
+        # Count commits since last tag
+        commit_count=$(git rev-list $latest_tag..HEAD --count)
+        echo "Commit count since last tag: $commit_count"
+        echo "Minimum commits required: $MIN_COMMITS"
+        
+        # Store values for next steps
+        echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+        echo "commit_count=$commit_count" >> $GITHUB_ENV
+        
+        # Check if we have enough commits
+        if [ "$commit_count" -ge "$MIN_COMMITS" ]; then
+          echo "sufficient_commits=true" >> $GITHUB_ENV
+        else
+          echo "sufficient_commits=false" >> $GITHUB_ENV
+        fi
+
+    - name: Calculate new version
+      if: env.sufficient_commits == 'true'
+      id: version
+      run: |
+        # Extract version numbers from latest tag (release.major.minor)
+        current_version=${latest_tag#v}
+        IFS='.' read -r release major minor <<< "$current_version"
+        
+        # If no valid version found, start at 1.0.0
+        if [ -z "$release" ]; then
+          release=1
+          major=0
+          minor=0
+        fi
+        
+        # Increment minor version
+        new_minor=$((minor + 1))
+        # If minor > 99, increment major and reset minor
+        if [ "$new_minor" -gt 99 ]; then
+          new_major=$((major + 1))
+          new_minor=0
+        else
+          new_major=$major
+        fi
+        
+        new_version="$release.$new_major.$new_minor"
+        echo "New version will be: $new_version"
+        echo "new_version=$new_version" >> $GITHUB_ENV
+
+    - name: Update version numbers
+      if: env.sufficient_commits == 'true'
+      run: |
+        # Update version in setup.py
+        sed -i "s/version=\".*\"/version=\"${{ env.new_version }}\"/" setup.py
+        
+        # Update version in __init__.py
+        init_file="sdk/observicia/__init__.py"
+        sed -i "s/__version__ = \".*\"/__version__ = \"${{ env.new_version }}\"/" "$init_file"
+        
+        # Commit version changes
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add setup.py "$init_file"
+        git commit -m "Bump version to ${{ env.new_version }} [skip ci]"
+        git push
+
+    - name: Build package
+      if: env.sufficient_commits == 'true'
+      run: python -m build
+
+    - name: Publish to PyPI
+      if: env.sufficient_commits == 'true'
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        python -m twine upload dist/*
+
+    - name: Create Git tag
+      if: env.sufficient_commits == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git tag -a v${{ env.new_version }} -m "Nightly release version ${{ env.new_version }}"
+        git push origin v${{ env.new_version }}
+
+    - name: Create Release
+      if: env.sufficient_commits == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ env.new_version }}
+        name: Release v${{ env.new_version }}
+        body: |
+          Automated nightly release
+          
+          Changes since last release:
+          ${{ join(github.event.commits.*.message, '\n') }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
