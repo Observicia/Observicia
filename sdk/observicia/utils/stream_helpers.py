@@ -38,7 +38,6 @@ async def handle_async_stream(func: Any,
     """Handle async streaming responses."""
     tracer = get_tracer(__name__)
     accumulated_response = []
-    chunk_count = 0
 
     # Get the generator first
     response_generator = await func(client, *args, **kwargs)
@@ -46,7 +45,7 @@ async def handle_async_stream(func: Any,
     # Create parent context for streaming operation
     parent_ctx = trace.set_span_in_context(parent_span)
 
-    # Create a new span for the entire streaming operation as child of parent span
+    # Create a new span for the entire streaming operation
     with tracer.start_span("stream_processing",
                            context=parent_ctx,
                            kind=SpanKind.INTERNAL) as stream_span:
@@ -55,25 +54,12 @@ async def handle_async_stream(func: Any,
         if prompt:
             stream_span.set_attribute("has_prompt", True)
 
-        # Create context for child spans
-        stream_ctx = trace.set_span_in_context(stream_span)
-
         async def wrapped_generator():
-            nonlocal chunk_count
-
             try:
                 async for chunk in response_generator:
                     content = _extract_content_from_chunk(chunk, is_chat)
                     if content:
                         accumulated_response.append(content)
-                        chunk_count += 1
-                        # Create chunk span as child of stream span
-                        with tracer.start_span(
-                                "process_chunk",
-                                context=stream_ctx,
-                                kind=SpanKind.INTERNAL) as chunk_span:
-                            chunk_span.set_attribute("stream.chunks_received",
-                                                     chunk_count)
                     yield chunk
 
                 # After stream completes, process accumulated response
@@ -88,8 +74,6 @@ async def handle_async_stream(func: Any,
                     final_span.set_attribute("completion.tokens",
                                              completion_tokens)
                     final_span.set_attribute("total.tokens", total_tokens)
-                    final_span.set_attribute("stream.total_chunks",
-                                             chunk_count)
 
                     token_tracker.update("openai",
                                          prompt_tokens=prompt_tokens,
@@ -119,6 +103,8 @@ async def handle_async_stream(func: Any,
                 stream_span.record_exception(e)
                 raise
 
+        # Create context for child spans
+        stream_ctx = trace.set_span_in_context(stream_span)
         return wrapped_generator()
 
 
@@ -135,7 +121,6 @@ def handle_stream(func: Any,
     """Handle sync streaming responses."""
     tracer = get_tracer(__name__)
     accumulated_response = []
-    chunk_count = 0
 
     # Get the sync generator
     response_generator = func(client, *args, **kwargs)
@@ -152,11 +137,6 @@ def handle_stream(func: Any,
                 content = _extract_content_from_chunk(chunk, is_chat)
                 if content:
                     accumulated_response.append(content)
-                    chunk_count += 1
-                    with tracer.start_as_current_span(
-                            "process_chunk") as chunk_span:
-                        chunk_span.set_attribute("stream.chunks_received",
-                                                 chunk_count)
                 yield chunk
 
             # After stream completes, process accumulated response
@@ -169,7 +149,6 @@ def handle_stream(func: Any,
                 final_span.set_attribute("completion.tokens",
                                          completion_tokens)
                 final_span.set_attribute("total.tokens", total_tokens)
-                final_span.set_attribute("stream.total_chunks", chunk_count)
 
                 token_tracker.update("openai",
                                      prompt_tokens=prompt_tokens,
