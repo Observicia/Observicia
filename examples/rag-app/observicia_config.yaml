@@ -1,0 +1,16 @@
+service_name: patient-rag-app
+otel_endpoint: null
+opa_endpoint: http://opa-server:8181/
+policies:
+  - name: pii_check
+    path: policies/pii
+    description: Check for PII in responses
+    required_trace_level: enhanced
+    risk_level: high
+  - name: prompt_compliance
+    path: policies/prompt_compliance
+    description: Check for prompt compliance
+    required_trace_level: basic
+    risk_level: medium
+log_file: null
+trace_console: false

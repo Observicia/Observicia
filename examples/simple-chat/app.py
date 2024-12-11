@@ -4,7 +4,9 @@ from observicia import init
 from observicia.core.context_manager import ObservabilityContext
 
 # Initialize Observicia
-init(service_name="chatbot-app", trace_console=False, log_file="telemetry.log")
+init()
+
+# Set user ID
 ObservabilityContext.set_user_id("johndoe")
 
 from openai import AsyncOpenAI
