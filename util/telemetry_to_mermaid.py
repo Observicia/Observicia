@@ -29,7 +29,9 @@ def parse_spans(log_lines: List[str]) -> List[Dict]:
 
 def format_attributes(attributes: Dict) -> str:
     """Format span attributes for Mermaid note."""
-    return '<br/>'.join(f"{k}: {v}" for k, v in attributes.items())
+    return '<br/>'.join(
+        f"{k}: {v}" for k, v in attributes.items()
+        if not k.startswith('stream.chunks'))  # Skip chunk counts
 
 
 def generate_mermaid(spans: List[Dict]) -> str:
@@ -39,9 +41,6 @@ def generate_mermaid(spans: List[Dict]) -> str:
 
     # Get trace ID from first span
     trace_id = spans[0]['trace_id']
-
-    # Map spans to their parent IDs
-    span_map = {span['span_id']: span for span in spans}
 
     # Initialize diagram
     diagram = ['sequenceDiagram']
@@ -54,7 +53,6 @@ def generate_mermaid(spans: List[Dict]) -> str:
     diagram.append('    participant Root')
     diagram.append('    participant Chat as openai.chat.completion.async')
     diagram.append('    participant Stream as stream_processing')
-    diagram.append('    participant Chunk as process_chunk')
     diagram.append('    participant Final as finalize_stream')
     diagram.append('')
 
@@ -77,16 +75,6 @@ def generate_mermaid(spans: List[Dict]) -> str:
         f'    Note over Stream: {format_attributes(stream_span["attributes"])}'
     )
     diagram.append('')
-
-    # Process chunk spans
-    chunk_spans = [s for s in spans if s['name'] == 'process_chunk']
-    for i, chunk in enumerate(chunk_spans, 1):
-        chunk_time = format_time(parse_timestamp(chunk['timestamp']))
-        diagram.append(f'    Stream->>Chunk: chunk {i} ({chunk_time})')
-        diagram.append(
-            f'    Note over Chunk: {format_attributes(chunk["attributes"])}')
-        diagram.append(f'    Chunk-->>Stream: complete')
-        diagram.append('')
 
     # Process finalize span
     final_span = next(s for s in spans if s['name'] == 'finalize_stream')
