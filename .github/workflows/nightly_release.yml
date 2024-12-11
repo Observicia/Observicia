@@ -46,7 +46,7 @@ jobs:
           echo "MIN_COMMITS=5" >> $GITHUB_ENV
         fi
 
-    - name: Check commit count since last tag
+    - name: Check commit count and generate changelog
       id: check_commits
       run: |
         # Get the latest tag
@@ -62,6 +62,62 @@ jobs:
         echo "latest_tag=$latest_tag" >> $GITHUB_ENV
         echo "commit_count=$commit_count" >> $GITHUB_ENV
         
+        # Generate categorized changelog
+        echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+        echo "## What's Changed" >> $GITHUB_ENV
+
+        # Features
+        echo "### ✨ Features" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^feat" >> $GITHUB_ENV || true
+
+        # Bug Fixes
+        echo -e "\n### 🐛 Bug Fixes" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^fix" >> $GITHUB_ENV || true
+
+        # Performance Improvements
+        echo -e "\n### ⚡️ Performance" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^perf" >> $GITHUB_ENV || true
+
+        # Documentation
+        echo -e "\n### 📚 Documentation" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^docs" >> $GITHUB_ENV || true
+
+        # Styles
+        echo -e "\n### 💄 Styles" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^style" >> $GITHUB_ENV || true
+
+        # Code Refactoring
+        echo -e "\n### ♻️ Code Refactoring" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^refactor" >> $GITHUB_ENV || true
+
+        # Tests
+        echo -e "\n### ✅ Tests" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^test" >> $GITHUB_ENV || true
+
+        # Build System
+        echo -e "\n### 📦 Build System" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^build" >> $GITHUB_ENV || true
+
+        # CI
+        echo -e "\n### 👷 CI" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^ci" >> $GITHUB_ENV || true
+
+        # Chores
+        echo -e "\n### 🔧 Chores" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^chore" >> $GITHUB_ENV || true
+
+        # Revert
+        echo -e "\n### ⏪ Reverts" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -i "^revert" >> $GITHUB_ENV || true
+
+        # Other changes (uncategorized)
+        echo -e "\n### 🔍 Other Changes" >> $GITHUB_ENV
+        git log $latest_tag..HEAD --pretty=format:"* %s (%h)" --reverse | grep -vi -e "^feat" -e "^fix" -e "^perf" -e "^docs" -e "^style" -e "^refactor" -e "^test" -e "^build" -e "^ci" -e "^chore" -e "^revert" >> $GITHUB_ENV || true
+
+        echo -e "\n\n## 👥 Contributors" >> $GITHUB_ENV
+        echo "$(git log $latest_tag..HEAD --pretty=format:"* @%an" --reverse | sort -u)" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
         # Check if we have enough commits
         if [ "$commit_count" -ge "$MIN_COMMITS" ]; then
           echo "sufficient_commits=true" >> $GITHUB_ENV
@@ -142,10 +198,9 @@ jobs:
         tag_name: v${{ env.new_version }}
         name: Release v${{ env.new_version }}
         body: |
-          Automated nightly release
+          Nightly release version ${{ env.new_version }}
           
-          Changes since last release:
-          ${{ join(github.event.commits.*.message, '\n') }}
+          ${{ env.CHANGELOG }}
         draft: false
         prerelease: false
       env:
