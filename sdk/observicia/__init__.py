@@ -12,7 +12,7 @@ from typing import List, Optional
 import os
 import yaml
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 
 def init() -> None:
