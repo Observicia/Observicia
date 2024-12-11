@@ -56,24 +56,44 @@ flowchart TB
 
 ### Configuration
 
-Configure the SDK through environment variables or direct initialization:
+The SDK is configured through an external YAML file specified by the `OBSERVICIA_CONFIG_FILE` environment variable. 
+
+#### Steps to Configure
+
+1. Create a YAML configuration file (e.g., `observicia_config.yaml`) with the desired settings:
+
+```yaml
+service_name: patient-rag-app
+otel_endpoint: null
+opa_endpoint: http://opa-server:8181/
+policies:
+  - name: pii_check
+    path: policies/pii
+    description: Check for PII in responses
+    required_trace_level: enhanced
+    risk_level: high
+  - name: prompt_compliance
+    path: policies/prompt_compliance
+    description: Check for prompt compliance
+    required_trace_level: basic
+    risk_level: medium
+log_file: null
+trace_console: false
+```
+
+2. Set the `OBSERVICIA_CONFIG_FILE` environment variable to the path of the configuration file:
+
+```bash
+export OBSERVICIA_CONFIG_FILE=/path/to/observicia_config.yaml
+```
+
+3. Initialize the SDK in your code without specifying additional parameters:
 
 ```python
 from observicia import init
-from observicia.core.policy_engine import Policy
-# Initialize Observicia with policy
-policies = [
-    Policy(name="pii_check",
-           path="policies/pii",
-           description="Check for PII in responses",
-           required_trace_level="enhanced",
-           risk_level="high")
-]
 
-init(service_name="patient-rag-app",
-     trace_console=False,
-     opa_endpoint="http://opa-server:8181/",
-     policies=policies)
+# Initialize Observicia
+init()
 ```
 
 See example usages in the [examples](examples) directory.

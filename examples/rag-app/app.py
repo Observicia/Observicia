@@ -5,25 +5,9 @@ import faiss
 import openai
 from sentence_transformers import SentenceTransformer
 from observicia import init
-from observicia.core.policy_engine import Policy
-# Initialize Observicia with policy
-policies = [
-    Policy(name="pii_check",
-           path="policies/pii",
-           description="Check for PII in responses",
-           required_trace_level="enhanced",
-           risk_level="high"),
-    Policy(name="prompt_compliance",
-           path="policies/prompt_compliance",
-           description="Check for prompt compliance",
-           required_trace_level="basic",
-           risk_level="medium")
-]
 
-init(service_name="patient-rag-app",
-     trace_console=False,
-     opa_endpoint="http://opa-server:8181/",
-     policies=policies)
+# Initialize Observicia
+init()
 
 import warnings
 

@@ -1,0 +1,6 @@
+service_name: chatbot-app
+otel_endpoint: null
+opa_endpoint: null
+policies: []
+log_file: telemetry.log
+trace_console: false
