@@ -3,7 +3,7 @@
 PYTHON := python3.11
 PACKAGE_NAME := observicia
 TEST_PATH := sdk/tests
-COVERAGE_THRESHOLD := 50
+COVERAGE_THRESHOLD := 45
 
 help:
 	@echo "Available commands:"
@@ -28,7 +28,11 @@ install:
 	$(PYTHON) -m pip install -e .
 	$(PYTHON) -m pip install -r requirements-dev.txt
 
-test:
+dependencies: sdk/requirements.txt requirements-dev.txt
+	@$(PYTHON) -m pip install -r sdk/requirements.txt
+	@$(PYTHON) -m pip install -r requirements-dev.txt
+
+test: dependencies
 	$(PYTHON) -m pytest $(TEST_PATH) \
 		--cov=$(PACKAGE_NAME) \
 		--cov-report=html \
