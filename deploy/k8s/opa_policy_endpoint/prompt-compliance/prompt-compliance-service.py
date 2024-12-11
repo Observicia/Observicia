@@ -49,10 +49,13 @@ def compute_similarity(prompt: str, completion: str) -> float:
 async def analyze_prompt_compliance(request: AnalyzeRequest):
     try:
         print(f"Analyzing prompt: {request.prompt}")
+        print("----")
         print(f"Analyzing completion: {request.completion}")
+        print("----")
         # get semantic similarity between prompt and completion
         score = compute_similarity(request.prompt, request.completion)
-        print(f"Score: {score}")
+        print(f"\033[93mCompletion Following Score: {score}\033[0m")
+        print("=====================================")
         return {
             "score": score,
             "metadata": {

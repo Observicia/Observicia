@@ -25,6 +25,9 @@ def analyze_text(request: AnalyzeRequest):
     results = analyzer.analyze(text=text,
                                entities=PII_PATTERNS.keys(),
                                language="en")
+    print("----")
+    print(f"\033[93mPII Results: {results}\033[0m")
+    print("=====================================")
     return [{
         "entity_type": result.entity_type,
         "start": result.start,
