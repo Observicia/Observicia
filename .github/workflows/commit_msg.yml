@@ -1,0 +1,51 @@
+name: Validate Commit Messages
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+  
+      - name: Validate commit messages
+        id: validate
+        run: |
+          # Define the allowed commit message format as a regex
+          COMMIT_REGEX='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9-]+\): .{10,}$'
+
+          # Get the commit messages in the push or pull request
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            COMMITS=$(git log --format=%B ${{ github.event.before }}..${{ github.sha }})
+          else
+            COMMITS=$(git log --format=%B HEAD~${{ github.event.pull_request.commits }}..HEAD)
+          fi
+
+          # Check each commit message against the regex
+          for COMMIT_MSG in "$COMMITS"; do
+            echo "Checking commit message: '$COMMIT_MSG'"
+            if ! echo "$COMMIT_MSG" | grep -Eq "$COMMIT_REGEX"; then
+              echo "Invalid commit message format: '$COMMIT_MSG'"
+              exit 1
+            fi
+          done
+
+          echo "All commit messages are valid."
+
+      - name: Set failure status
+        if: failure()
+        run: |
+          echo "::error::Some commit messages do not follow the required format."
