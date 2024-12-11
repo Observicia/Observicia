@@ -83,8 +83,8 @@ async def main():
         "Tell me about Alice's contact information",
         "What is Bob's age?",
         "What was John's last visit date?",
-        "What is the name of cough medicine?",
-        "What is the date today?",
+        "How many patients do we have?",
+        "How many patients do we have? Don't show their personal information, including names",
         "What is the symptom of Hypertension?",
     ]
 
