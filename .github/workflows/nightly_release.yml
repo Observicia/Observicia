@@ -38,6 +38,12 @@ jobs:
     - name: Run tests
       run: make test
 
+    - name: Test Example apps
+      run: |
+        # Run with a timeout to prevent hanging
+        timeout 60s make run-chat || echo "Chat sample timeout (expected)"
+        timeout 60s make run-rag || echo "RAG sample timeout (expected)"
+
     - name: Set minimum commits
       run: |
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then

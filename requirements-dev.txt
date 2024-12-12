@@ -10,3 +10,5 @@ pip-audit
 twine
 build
 wheel
+faiss-cpu
+sentence-transformers

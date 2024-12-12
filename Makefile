@@ -1,9 +1,10 @@
-.PHONY: clean install test lint security build publish help
+.PHONY: clean install test lint security build publish help run-samples format dependencies
 
 PYTHON := python3.11
 PACKAGE_NAME := observicia
 TEST_PATH := sdk/tests
 COVERAGE_THRESHOLD := 45
+OPENAI_API_KEY ?= ""
 
 help:
 	@echo "Available commands:"
@@ -14,6 +15,11 @@ help:
 	@echo "security   - Run security checks"
 	@echo "build      - Build package distribution"
 	@echo "publish    - Publish package to PyPI"
+	@echo "format     - Format code using black and isort"
+	@echo "run-samples- Run sample applications (chat and RAG)"
+	@echo "run-chat   - Run sample chat application in test mode"
+	@echo "run-chat-interactive - Run sample chat application in interactive mode"
+	@echo "run-rag    - Run sample RAG application"
 
 clean:
 	rm -rf build/
@@ -57,3 +63,23 @@ publish:
 format: lint
 	$(PYTHON) -m black .
 	$(PYTHON) -m isort .
+
+check-openai-key:
+	@if [ -z "$(OPENAI_API_KEY)" ]; then \
+		echo "Error: OPENAI_API_KEY environment variable is not set"; \
+		exit 1; \
+	fi
+
+run-chat: check-openai-key install
+	@echo "Running sample chat application in test mode..."
+	cd examples/simple-chat && OPENAI_API_KEY=$(OPENAI_API_KEY) $(PYTHON) app.py --test
+
+run-chat-interactive: check-openai-key install
+	@echo "Running sample chat application in interactive mode..."
+	cd examples/simple-chat && OPENAI_API_KEY=$(OPENAI_API_KEY) $(PYTHON) app.py
+
+run-rag: check-openai-key install
+	@echo "Running sample RAG application..."
+	cd examples/rag-app && OPENAI_API_KEY=$(OPENAI_API_KEY) $(PYTHON) app.py
+
+run-samples: run-chat run-rag

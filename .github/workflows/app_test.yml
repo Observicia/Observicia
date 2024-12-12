@@ -1,0 +1,28 @@
+name: Test Example Applications
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-samples:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        make install
+        
+    - name: Run sample applications
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        make run-chat
+        make run-rag
