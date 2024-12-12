@@ -25,14 +25,12 @@ def enforce_policies(context: Optional[ObservabilityContext],
         if prompt:
             context._logger.log_chat_interaction(interaction_type='prompt',
                                                  content=prompt,
-                                                 metadata=metadata,
-                                                 user_id=user_id)
+                                                 metadata=metadata)
 
         if completion:
             context._logger.log_chat_interaction(interaction_type='completion',
                                                  content=completion,
-                                                 metadata=metadata,
-                                                 user_id=user_id)
+                                                 metadata=metadata)
 
     # Serialize the response before evaluation
     serialized_response = serialize_llm_response(response)

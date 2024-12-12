@@ -1,12 +1,20 @@
+#!/usr/bin/env python3
+"""Convert Observicia telemetry logs to Mermaid sequence diagrams."""
+
 import json
 from datetime import datetime
 from typing import List, Dict
 import sys
+import argparse
 
 
 def parse_timestamp(ts_str: str) -> datetime:
     """Parse timestamp string to datetime object."""
-    return datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
+    try:
+        return datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
+    except (ValueError, TypeError):
+        # Fallback for other timestamp formats
+        return datetime.utcnow()
 
 
 def format_time(dt: datetime) -> str:
@@ -20,90 +28,132 @@ def parse_spans(log_lines: List[str]) -> List[Dict]:
     for line in log_lines:
         try:
             data = json.loads(line)
-            if data.get('type') == 'span':
+            # Handle both old and new log formats
+            if data.get('type') == 'span' or 'span_id' in data:
+                # Clean and normalize data
+                if 'timestamp' not in data and 'time' in data:
+                    data['timestamp'] = data['time']
                 spans.append(data)
         except json.JSONDecodeError:
             continue
+        except Exception as e:
+            print(f"Warning: Error parsing line: {e}", file=sys.stderr)
     return spans
+
+
+def sanitize_for_mermaid(value: str) -> str:
+    """Sanitize text for Mermaid diagram compatibility."""
+    if not isinstance(value, str):
+        value = str(value)
+    # Replace semicolons with commas
+    value = value.replace(';', ',')
+    # Replace other problematic characters
+    value = value.replace(':', ' - ')
+    # Replace newlines with <br/>
+    value = value.replace('\n', '<br/>')
+    return value
 
 
 def format_attributes(attributes: Dict) -> str:
     """Format span attributes for Mermaid note."""
-    return '<br/>'.join(
-        f"{k}: {v}" for k, v in attributes.items()
-        if not k.startswith('stream.chunks'))  # Skip chunk counts
+    formatted = []
+    for k, v in attributes.items():
+        if k.startswith('stream.chunks'):
+            continue  # Skip chunk counts
+        if isinstance(v, dict):
+            v = sanitize_for_mermaid(json.dumps(v))
+        else:
+            v = sanitize_for_mermaid(str(v))
+        k = sanitize_for_mermaid(k)
+        formatted.append(f"{k} - {v}")
+    return '<br/>'.join(formatted)
 
 
 def generate_mermaid(spans: List[Dict]) -> str:
     """Generate Mermaid sequence diagram from spans."""
+    if not spans:
+        return "sequenceDiagram\n    Note over System: No spans found"
+
     # Sort spans by start_time
-    spans.sort(key=lambda x: x['start_time'])
+    spans.sort(key=lambda x: parse_timestamp(
+        x.get('timestamp', x.get('start_time', ''))))
 
     # Get trace ID from first span
-    trace_id = spans[0]['trace_id']
+    trace_id = spans[0].get('trace_id', 'unknown')
 
     # Initialize diagram
     diagram = ['sequenceDiagram']
-
-    # Add trace ID note
-    diagram.append(f'    Note over Root,Final: trace_id: {trace_id}')
+    # Sanitize trace ID just in case
+    diagram.append(
+        f'    Note over Root,Final: Trace ID - {sanitize_for_mermaid(trace_id)}'
+    )
     diagram.append('')
 
-    # Define participants
+    # Define participants based on span names found
+    participants = set()
+    for span in spans:
+        name = sanitize_for_mermaid(span.get('name', '').split('.')[-1])
+        if name:
+            participants.add(name)
+
+    # Add participants in order
     diagram.append('    participant Root')
-    diagram.append('    participant Chat as openai.chat.completion.async')
-    diagram.append('    participant Stream as stream_processing')
-    diagram.append('    participant Final as finalize_stream')
+    for participant in sorted(participants):
+        if participant not in ('Root', 'Final'):
+            diagram.append(f'    participant {participant}')
+    if 'Final' not in participants:
+        diagram.append('    participant Final')
     diagram.append('')
 
-    # Process main completion span
-    completion_span = next(s for s in spans
-                           if s['name'] == 'openai.chat.completion.async')
-    completion_time = format_time(parse_timestamp(
-        completion_span['timestamp']))
-    diagram.append(f'    Root->>Chat: start ({completion_time})')
-    diagram.append(
-        f'    Note over Chat: {format_attributes(completion_span["attributes"])}'
-    )
-    diagram.append('')
+    # Process spans
+    for span in spans:
+        timestamp = format_time(parse_timestamp(span.get('timestamp', '')))
+        name = sanitize_for_mermaid(span.get('name', '').split('.')[-1])
+        parent = sanitize_for_mermaid(span.get('parent_id', 'Root'))
 
-    # Process stream span
-    stream_span = next(s for s in spans if s['name'] == 'stream_processing')
-    stream_time = format_time(parse_timestamp(stream_span['timestamp']))
-    diagram.append(f'    Chat->>Stream: start ({stream_time})')
-    diagram.append(
-        f'    Note over Stream: {format_attributes(stream_span["attributes"])}'
-    )
-    diagram.append('')
+        if name:
+            # Add span start
+            diagram.append(f'    Root->>+{name}: start ({timestamp})')
 
-    # Process finalize span
-    final_span = next(s for s in spans if s['name'] == 'finalize_stream')
-    final_time = format_time(parse_timestamp(final_span['timestamp']))
-    diagram.append(f'    Stream->>Final: start ({final_time})')
-    diagram.append(
-        f'    Note over Final: {format_attributes(final_span["attributes"])}')
-    diagram.append(f'    Final-->>Stream: complete')
-    diagram.append('')
+            # Add attributes as note
+            if span.get('attributes'):
+                diagram.append(
+                    f'    Note over {name}: {format_attributes(span["attributes"])}'
+                )
 
-    # Close remaining spans
-    diagram.append('    Stream-->>Chat: complete')
-    diagram.append('    Chat-->>Root: complete')
+            # Add span end
+            diagram.append(f'    {name}-->>-Root: complete')
+            diagram.append('')
 
     return '\n'.join(diagram)
 
 
 def main():
-    # Read input from stdin or file
-    if len(sys.argv) > 1:
-        with open(sys.argv[1], 'r') as f:
+    parser = argparse.ArgumentParser(
+        description='Convert Observicia telemetry logs to Mermaid diagram')
+    parser.add_argument('-i',
+                        '--input',
+                        help='Input log file (default: stdin)')
+    parser.add_argument('-o', '--output', help='Output file (default: stdout)')
+    args = parser.parse_args()
+
+    # Read input
+    if args.input:
+        with open(args.input, 'r') as f:
             log_lines = f.readlines()
     else:
         log_lines = sys.stdin.readlines()
 
-    # Parse spans and generate diagram
+    # Parse and generate diagram
     spans = parse_spans(log_lines)
     mermaid_diagram = generate_mermaid(spans)
-    print(mermaid_diagram)
+
+    # Write output
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(mermaid_diagram)
+    else:
+        print(mermaid_diagram)
 
 
 if __name__ == '__main__':

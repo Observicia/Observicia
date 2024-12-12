@@ -1,65 +1,23 @@
 """
-logging utilities for Observicia SDK.
+Logging utilities for Observicia SDK.
 """
 
 import logging
 import sys
 from datetime import datetime
-from typing import Any, Dict, Optional, Union, Literal
-from opentelemetry.trace import get_current_span, SpanContext
+from typing import Any, Dict, Optional, Union, Literal, Sequence
+import json
+from opentelemetry import trace
+from opentelemetry.trace import SpanContext
 from opentelemetry._logs import set_logger_provider
 from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, ConsoleLogExporter
 from opentelemetry.sdk.trace.export import SpanExporter
 from opentelemetry.sdk.trace import ReadableSpan
-from typing import Sequence
-
-import json
-
-
-class ConsoleFormatter(logging.Formatter):
-    """
-    Custom formatter for console and file output that includes trace context and timestamps.
-    """
-
-    def format(self, record: logging.LogRecord) -> str:
-        timestamp = datetime.fromtimestamp(record.created).isoformat()
-
-        # Get trace context if available
-        trace_context = getattr(record, 'trace_context', {})
-        trace_id = trace_context.get('trace_id', '')
-        span_id = trace_context.get('span_id', '')
-
-        # Format the basic message
-        log_entry = {
-            'timestamp': timestamp,
-            'level': record.levelname,
-            'name': record.name,
-            'message': record.getMessage(),
-        }
-
-        # Add trace context if available
-        if trace_id:
-            log_entry['trace_id'] = trace_id
-        if span_id:
-            log_entry['span_id'] = span_id
-
-        # Add extra fields if available
-        extra = getattr(record, 'extra', None)
-        if extra:
-            log_entry['extra'] = extra
-
-        # Add exception info if available
-        if record.exc_info:
-            log_entry['exception'] = self.formatException(record.exc_info)
-
-        return json.dumps(log_entry, indent=2)
 
 
 class FileSpanExporter(SpanExporter):
-    """
-    SpanExporter that writes spans to a file in JSON format.
-    """
+    """SpanExporter that writes spans to a file in JSON format."""
 
     def __init__(self, file_path: str):
         self.file_path = file_path
@@ -146,144 +104,138 @@ class FileSpanExporter(SpanExporter):
             handler.close()
 
 
-class ChatInteractionFormatter(logging.Formatter):
-    """
-    Custom formatter for chat interactions that includes trace context and metadata.
-    """
+class JsonFormatter(logging.Formatter):
+    """Custom JSON formatter for main logging."""
+
+    def __init__(self, service_name: str):
+        super().__init__()
+        self.service_name = service_name
 
     def format(self, record: logging.LogRecord) -> str:
-        timestamp = datetime.fromtimestamp(record.created).isoformat()
-
-        # Get trace context if available
-        trace_context = getattr(record, 'trace_context', {})
-
-        # Format the interaction log entry
-        log_entry = {
-            'timestamp': timestamp,
+        log_data = {
+            'timestamp': datetime.fromtimestamp(record.created).isoformat(),
             'level': record.levelname,
-            'service_name': getattr(record, 'service_name', 'unknown'),
-            'user_id': getattr(record, 'user_id', 'unknown'),
-            'transaction_id': trace_context.get('trace_id', ''),
-            'span_id': trace_context.get('span_id', ''),
+            'service': self.service_name,
+            'message': record.getMessage(),
+            'trace_context': getattr(record, 'trace_context', {}),
+            'extra': getattr(record, 'extra', {})
+        }
+        return json.dumps(log_data)
+
+
+class ChatFormatter(logging.Formatter):
+    """Custom JSON formatter for chat logging."""
+
+    def __init__(self, service_name: str):
+        super().__init__()
+        self.service_name = service_name
+
+    def format(self, record: logging.LogRecord) -> str:
+        log_data = {
+            'timestamp': datetime.fromtimestamp(record.created).isoformat(),
+            'service': self.service_name,
             'interaction_type': getattr(record, 'interaction_type', 'unknown'),
             'content': record.getMessage(),
+            'metadata': getattr(record, 'metadata', {}),
+            'trace_context': getattr(record, 'trace_context', {})
         }
-
-        # Add metadata if available
-        metadata = getattr(record, 'metadata', None)
-        if metadata:
-            log_entry['metadata'] = metadata
-
-        return json.dumps(log_entry)
+        return json.dumps(log_data)
 
 
 class ObserviciaLogger:
-    """
-    Logger class that supports console, file, and OpenTelemetry logging.
-    """
+    """Logger class that supports file-based logging and OpenTelemetry integration."""
 
-    def __init__(self,
-                 service_name: str,
-                 log_level: int = logging.INFO,
-                 console_output: bool = False,
-                 file_output: Optional[str] = None,
-                 chat_log_level: Literal['none', 'prompt', 'completion',
-                                         'both'] = 'none',
-                 chat_log_file: Optional[str] = None,
-                 otlp_endpoint: Optional[str] = None):
+    def __init__(self, service_name: str, logging_config: Dict[str, Any]):
         """
-        Initialize the logger with multiple output options.
+        Initialize the logger with the new configuration structure.
         
         Args:
             service_name: Name of the service
-            log_level: Logging level (default: INFO)
-            console_output: Whether to output to console
-            file_output: File path for log output (optional)
-            chat_log_level: Level of chat interaction logging (default: none)
-            chat_log_file: Separate file for chat interactions (optional)
-            otlp_endpoint: OpenTelemetry endpoint (optional)
+            logging_config: Logging configuration dictionary containing telemetry, messages, and chat settings
         """
         self.service_name = service_name
         self.logger = logging.getLogger(service_name)
-        self.logger.setLevel(log_level)
-        self.chat_log_level = chat_log_level
+
+        # Configure based on messages settings
+        messages_config = logging_config.get("messages", {})
+        if messages_config.get("enabled", True):
+            self.logger.setLevel(
+                getattr(logging, messages_config.get("level", "INFO")))
+        else:
+            self.logger.setLevel(logging.CRITICAL)  # Effectively disable
 
         # Clear any existing handlers
         self.logger.handlers = []
 
-        # Create formatter
-        formatter = ConsoleFormatter()
-
-        if console_output:
-            # Console handler
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setFormatter(formatter)
-            self.logger.addHandler(console_handler)
-
-        if file_output:
-            # File handler
-            file_handler = logging.FileHandler(file_output)
-            file_handler.setFormatter(formatter)
+        # Main log file handler
+        if logging_config.get("file"):
+            file_handler = logging.FileHandler(logging_config["file"])
+            file_handler.setFormatter(JsonFormatter(service_name))
             self.logger.addHandler(file_handler)
 
-        if chat_log_level != 'none' and chat_log_file:
+        # Configure chat logging
+        chat_config = logging_config.get("chat", {})
+        if chat_config.get("enabled") and chat_config.get("file"):
             self.chat_logger = logging.getLogger(f"{service_name}_chat")
-            self.chat_logger.setLevel(log_level)
-            chat_handler = logging.FileHandler(chat_log_file)
-            chat_handler.setFormatter(ChatInteractionFormatter())
+            self.chat_logger.setLevel(logging.INFO)
+            chat_handler = logging.FileHandler(chat_config["file"])
+            chat_handler.setFormatter(ChatFormatter(service_name))
             self.chat_logger.addHandler(chat_handler)
         else:
             self.chat_logger = None
 
-        if otlp_endpoint:
-            # OpenTelemetry setup
+        self.chat_level = chat_config.get("level", "none")
+
+        # Configure telemetry if enabled
+        telemetry_config = logging_config.get("telemetry", {})
+        if telemetry_config.get("enabled", True):
             logger_provider = LoggerProvider()
             set_logger_provider(logger_provider)
 
-            # Console exporter for OpenTelemetry
-            console_exporter = ConsoleLogExporter()
-            logger_provider.add_log_record_processor(
-                BatchLogRecordProcessor(console_exporter))
+            if logging_config.get("file"):
+                telemetry_handler = BatchLogRecordProcessor(
+                    FileSpanExporter(logging_config["file"]))
+                logger_provider.add_log_record_processor(telemetry_handler)
 
     def _get_trace_context(self) -> Dict[str, str]:
         """Get current trace context if available."""
-        span = get_current_span()
+        span = trace.get_current_span()
         if span:
             ctx: SpanContext = span.get_span_context()
             return {
                 "trace_id": format(ctx.trace_id, "032x"),
-                "span_id": format(ctx.span_id, "016x"),
+                "span_id": format(ctx.span_id, "016x")
             }
         return {}
 
-    def log_chat_interaction(self,
-                             interaction_type: Literal['prompt', 'completion'],
-                             content: str,
-                             metadata: Optional[Dict[str, Any]] = None,
-                             user_id: Optional[str] = None) -> None:
-        """
-        Log a chat interaction with trace context and metadata.
-        
-        Args:
-            interaction_type: Type of interaction (prompt or completion)
-            content: The actual content to log
-            metadata: Additional metadata for the interaction
-            user_id: User ID associated with the interaction
-        """
+    def _get_trace_context(self) -> Dict[str, str]:
+        """Get current trace context if available."""
+        span = trace.get_current_span()
+        if span:
+            ctx: SpanContext = span.get_span_context()
+            return {
+                "trace_id": format(ctx.trace_id, "032x"),
+                "span_id": format(ctx.span_id, "016x")
+            }
+        return {}
+
+    def log_chat_interaction(
+            self,
+            interaction_type: Literal['prompt', 'completion'],
+            content: str,
+            metadata: Optional[Dict[str, Any]] = None) -> None:
+        """Log a chat interaction based on configuration."""
         if not self.chat_logger or interaction_type not in [
                 'prompt', 'completion'
         ]:
             return
 
-        if self.chat_log_level == 'both' or self.chat_log_level == interaction_type:
+        if self.chat_level == 'both' or self.chat_level == interaction_type:
             trace_context = self._get_trace_context()
 
-            # Create extra attributes
             extra = {
                 'trace_context': trace_context,
-                'service_name': self.service_name,
                 'interaction_type': interaction_type,
-                'user_id': user_id,
                 'metadata': metadata
             }
 
@@ -294,20 +246,16 @@ class ObserviciaLogger:
              message: str,
              extra: Optional[Dict[str, Any]] = None,
              exc_info: Any = None) -> None:
-        """
-        Log a message with trace context and additional attributes.
-        """
+        """Internal logging method with trace context."""
         trace_context = self._get_trace_context()
 
-        # Create record extras
-        extra_dict = {}
-        if trace_context:
-            extra_dict['trace_context'] = trace_context
+        extra_dict = {'trace_context': trace_context}
         if extra:
-            extra_dict['extra'] = extra
+            extra_dict.update(extra)
 
         self.logger.log(level, message, extra=extra_dict, exc_info=exc_info)
 
+    # Standard logging methods
     def debug(self,
               message: str,
               extra: Optional[Dict[str, Any]] = None) -> None:

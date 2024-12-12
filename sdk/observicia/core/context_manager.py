@@ -4,7 +4,7 @@ from datetime import datetime
 from opentelemetry import trace, baggage
 from opentelemetry.trace import Span, SpanKind
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 from .policy_engine import PolicyEngine, PolicyResult, Policy
@@ -54,48 +54,68 @@ class TraceContext:
 
 
 class ContextManager:
+    """Manages observability context and tracing."""
 
     def __init__(self,
                  service_name: str,
                  otel_endpoint: Optional[str] = None,
                  opa_endpoint: Optional[str] = None,
                  policies: Optional[List[Policy]] = None,
-                 log_file: Optional[str] = None,
-                 chat_log_level: Literal['none', 'prompt', 'completion',
-                                         'both'] = 'none',
-                 chat_log_file: Optional[str] = None,
-                 console_output: bool = False,
-                 trace_console: bool = False):
+                 logging_config: Optional[Dict] = None):
+        """
+        Initialize the context manager.
+        
+        Args:
+            service_name: Name of the service using the SDK
+            otel_endpoint: OpenTelemetry endpoint for tracing
+            opa_endpoint: OPA server endpoint for policy evaluation
+            policies: List of Policy objects defining available policies
+            logging_config: Configuration dictionary for logging options
+        """
         self._sessions: Dict[str, TraceContext] = {}
         self._service_name = service_name
         self._current_user_id: Optional[str] = None
-        self._log_file = log_file
+
+        # Use default logging configuration if none provided
+        self._logging_config = logging_config or {
+            "file": None,
+            "telemetry": {
+                "enabled": True,
+                "format": "json"
+            },
+            "messages": {
+                "enabled": True,
+                "level": "INFO"
+            },
+            "chat": {
+                "enabled": False,
+                "level": "none",
+                "file": None
+            }
+        }
 
         # Initialize policy engine if OPA endpoint is provided
         self.policy_engine = PolicyEngine(
             opa_endpoint=opa_endpoint,
             policies=policies) if opa_endpoint else None
 
+        # Initialize logger with new configuration
         self._logger = ObserviciaLogger(service_name=service_name,
-                                        console_output=console_output,
-                                        file_output=log_file,
-                                        chat_log_level=chat_log_level,
-                                        chat_log_file=chat_log_file,
-                                        otlp_endpoint=otel_endpoint)
+                                        logging_config=self._logging_config)
+
         # Set up tracing
         provider = TracerProvider()
 
-        if otel_endpoint:
+        if otel_endpoint and self._logging_config["telemetry"]["enabled"]:
             otlp_processor = BatchSpanProcessor(
                 OTLPSpanExporter(endpoint=otel_endpoint))
             provider.add_span_processor(otlp_processor)
 
-        if trace_console:
-            console_processor = BatchSpanProcessor(ConsoleSpanExporter())
-            provider.add_span_processor(console_processor)
-
-        if log_file:
-            file_processor = BatchSpanProcessor(FileSpanExporter(log_file))
+        # Add file exporter for telemetry if enabled
+        if (self._logging_config["file"]
+                and self._logging_config["telemetry"]["enabled"]):
+            file_processor = BatchSpanProcessor(
+                FileSpanExporter(self._logging_config["file"]))
             provider.add_span_processor(file_processor)
 
         trace.set_tracer_provider(provider)
@@ -166,6 +186,8 @@ class ContextManager:
 
 
 class ObservabilityContext:
+    """Global context manager singleton."""
+
     _instance: Optional[ContextManager] = None
 
     @classmethod
@@ -174,32 +196,14 @@ class ObservabilityContext:
                    otel_endpoint: Optional[str] = None,
                    opa_endpoint: Optional[str] = None,
                    policies: Optional[List[Policy]] = None,
-                   log_file: Optional[str] = None,
-                   chat_log_level: Literal['none', 'prompt', 'completion',
-                                           'both'] = 'none',
-                   chat_log_file: Optional[str] = None,
-                   trace_console: bool = False) -> None:
-        """Initialize the global context manager.
-        
-        Args:
-            service_name: Name of the service using the SDK
-            otel_endpoint: OpenTelemetry endpoint for tracing
-            opa_endpoint: OPA server endpoint for policy evaluation
-            policies: List of Policy objects defining available policies
-            log_file: File path for logging output
-            chat_log_level: Level of chat interaction logging
-            chat_log_file: Separate file for chat interactions
-            trace_console: Whether to enable console tracing
-        """
+                   logging_config: Optional[Dict] = None) -> None:
+        """Initialize the global context manager."""
         if cls._instance is None:
             cls._instance = ContextManager(service_name,
                                            otel_endpoint=otel_endpoint,
                                            opa_endpoint=opa_endpoint,
                                            policies=policies,
-                                           log_file=log_file,
-                                           chat_log_level=chat_log_level,
-                                           chat_log_file=chat_log_file,
-                                           trace_console=trace_console)
+                                           logging_config=logging_config)
 
     @classmethod
     def get_current(cls) -> Optional[ContextManager]:
