@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set
-import requests
+from opa_client import OpaClient
 from opentelemetry import trace
 
 
@@ -24,16 +24,6 @@ class PolicyResult:
     risk_level: str = "low"  # "low", "medium", "high", "critical"
 
 
-@dataclass
-class Policy:
-    """Represents an OPA policy configuration."""
-    name: str
-    path: str  # Path part of the URL after /v1/data/
-    description: Optional[str] = None
-    required_trace_level: str = "basic"
-    risk_level: str = "low"
-
-
 class PolicyEngine:
     """
     Policy engine that integrates with OPA for policy evaluation.
@@ -50,6 +40,8 @@ class PolicyEngine:
             policies: List of Policy objects defining available policies
         """
         self.opa_endpoint = opa_endpoint.rstrip('/')
+        # Initialize OPA client
+        self.opa_client = OpaClient(host=self.opa_endpoint)
 
         self.policies: Dict[str, Policy] = {
             p.name: p
@@ -150,7 +142,6 @@ class PolicyEngine:
         for policy in policies:
             raw_result = self._evaluate_single_policy_sync(
                 policy, eval_context)
-            # print(f'Policy: {policy.name}, Result: {raw_result}')
 
             # Extract the nested result
             result = raw_result.get('result', {})
@@ -202,25 +193,25 @@ class PolicyEngine:
             self, policy: Policy, eval_context: Dict[str,
                                                      Any]) -> Dict[str, Any]:
         """Evaluate a single policy synchronously using OPA."""
-        url = f"{self.opa_endpoint}/v1/data/{policy.path}"
         try:
-            response = requests.post(url, json={"input": eval_context})
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return {
-                    "allow":
-                    False,
-                    "violations":
-                    [f"Policy evaluation failed: HTTP {response.status_code}"],
-                    "risk_level":
-                    "high"
+            result = self.opa_client.check_permission(
+                input_data={"input": eval_context}, path=policy.path)
+            # Format the result to match our expected structure
+            return {
+                "result": {
+                    "allow": result.get("result", False),
+                    "violations": result.get("violations", []),
+                    "risk_level": result.get("risk_level", "high"),
+                    "metadata": result.get("metadata", {})
                 }
+            }
         except Exception as e:
             return {
-                "allow": False,
-                "violations": [f"Policy evaluation error: {str(e)}"],
-                "risk_level": "high"
+                "result": {
+                    "allow": False,
+                    "violations": [f"Policy evaluation error: {str(e)}"],
+                    "risk_level": "high"
+                }
             }
 
     def _compare_risk_levels(self, level1: str, level2: str) -> int:
