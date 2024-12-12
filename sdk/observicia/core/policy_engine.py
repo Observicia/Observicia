@@ -24,16 +24,6 @@ class PolicyResult:
     risk_level: str = "low"  # "low", "medium", "high", "critical"
 
 
-@dataclass
-class Policy:
-    """Represents an OPA policy configuration."""
-    name: str
-    path: str  # Path part of the URL after /v1/data/
-    description: Optional[str] = None
-    required_trace_level: str = "basic"
-    risk_level: str = "low"
-
-
 class PolicyEngine:
     """
     Policy engine that integrates with OPA for policy evaluation.
