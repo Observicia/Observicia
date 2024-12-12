@@ -5,7 +5,7 @@ logging utilities for Observicia SDK.
 import logging
 import sys
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, Literal
 from opentelemetry.trace import get_current_span, SpanContext
 from opentelemetry._logs import set_logger_provider
 from opentelemetry.sdk._logs import LoggerProvider
@@ -146,6 +146,37 @@ class FileSpanExporter(SpanExporter):
             handler.close()
 
 
+class ChatInteractionFormatter(logging.Formatter):
+    """
+    Custom formatter for chat interactions that includes trace context and metadata.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        timestamp = datetime.fromtimestamp(record.created).isoformat()
+
+        # Get trace context if available
+        trace_context = getattr(record, 'trace_context', {})
+
+        # Format the interaction log entry
+        log_entry = {
+            'timestamp': timestamp,
+            'level': record.levelname,
+            'service_name': getattr(record, 'service_name', 'unknown'),
+            'user_id': getattr(record, 'user_id', 'unknown'),
+            'transaction_id': trace_context.get('trace_id', ''),
+            'span_id': trace_context.get('span_id', ''),
+            'interaction_type': getattr(record, 'interaction_type', 'unknown'),
+            'content': record.getMessage(),
+        }
+
+        # Add metadata if available
+        metadata = getattr(record, 'metadata', None)
+        if metadata:
+            log_entry['metadata'] = metadata
+
+        return json.dumps(log_entry)
+
+
 class ObserviciaLogger:
     """
     Logger class that supports console, file, and OpenTelemetry logging.
@@ -156,6 +187,9 @@ class ObserviciaLogger:
                  log_level: int = logging.INFO,
                  console_output: bool = False,
                  file_output: Optional[str] = None,
+                 chat_log_level: Literal['none', 'prompt', 'completion',
+                                         'both'] = 'none',
+                 chat_log_file: Optional[str] = None,
                  otlp_endpoint: Optional[str] = None):
         """
         Initialize the logger with multiple output options.
@@ -165,10 +199,14 @@ class ObserviciaLogger:
             log_level: Logging level (default: INFO)
             console_output: Whether to output to console
             file_output: File path for log output (optional)
+            chat_log_level: Level of chat interaction logging (default: none)
+            chat_log_file: Separate file for chat interactions (optional)
             otlp_endpoint: OpenTelemetry endpoint (optional)
         """
+        self.service_name = service_name
         self.logger = logging.getLogger(service_name)
         self.logger.setLevel(log_level)
+        self.chat_log_level = chat_log_level
 
         # Clear any existing handlers
         self.logger.handlers = []
@@ -187,6 +225,15 @@ class ObserviciaLogger:
             file_handler = logging.FileHandler(file_output)
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
+
+        if chat_log_level != 'none' and chat_log_file:
+            self.chat_logger = logging.getLogger(f"{service_name}_chat")
+            self.chat_logger.setLevel(log_level)
+            chat_handler = logging.FileHandler(chat_log_file)
+            chat_handler.setFormatter(ChatInteractionFormatter())
+            self.chat_logger.addHandler(chat_handler)
+        else:
+            self.chat_logger = None
 
         if otlp_endpoint:
             # OpenTelemetry setup
@@ -208,6 +255,39 @@ class ObserviciaLogger:
                 "span_id": format(ctx.span_id, "016x"),
             }
         return {}
+
+    def log_chat_interaction(self,
+                             interaction_type: Literal['prompt', 'completion'],
+                             content: str,
+                             metadata: Optional[Dict[str, Any]] = None,
+                             user_id: Optional[str] = None) -> None:
+        """
+        Log a chat interaction with trace context and metadata.
+        
+        Args:
+            interaction_type: Type of interaction (prompt or completion)
+            content: The actual content to log
+            metadata: Additional metadata for the interaction
+            user_id: User ID associated with the interaction
+        """
+        if not self.chat_logger or interaction_type not in [
+                'prompt', 'completion'
+        ]:
+            return
+
+        if self.chat_log_level == 'both' or self.chat_log_level == interaction_type:
+            trace_context = self._get_trace_context()
+
+            # Create extra attributes
+            extra = {
+                'trace_context': trace_context,
+                'service_name': self.service_name,
+                'interaction_type': interaction_type,
+                'user_id': user_id,
+                'metadata': metadata
+            }
+
+            self.chat_logger.info(content, extra=extra)
 
     def _log(self,
              level: int,

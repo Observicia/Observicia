@@ -14,6 +14,26 @@ def enforce_policies(context: Optional[ObservabilityContext],
     if not context or not context.policy_engine:
         return
 
+    user_id = context.get_user_id()
+    if hasattr(context, '_logger'):
+        metadata = {
+            "model": span.attributes.get("llm.model", "unknown"),
+            "provider": span.attributes.get("llm.provider", "unknown"),
+            "request_type": span.attributes.get("llm.request.type", "unknown")
+        }
+
+        if prompt:
+            context._logger.log_chat_interaction(interaction_type='prompt',
+                                                 content=prompt,
+                                                 metadata=metadata,
+                                                 user_id=user_id)
+
+        if completion:
+            context._logger.log_chat_interaction(interaction_type='completion',
+                                                 content=completion,
+                                                 metadata=metadata,
+                                                 user_id=user_id)
+
     # Serialize the response before evaluation
     serialized_response = serialize_llm_response(response)
 

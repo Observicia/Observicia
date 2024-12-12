@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Literal
 from datetime import datetime
 from opentelemetry import trace, baggage
 from opentelemetry.trace import Span, SpanKind
@@ -8,7 +8,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExport
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 from .policy_engine import PolicyEngine, PolicyResult, Policy
-from ..utils.logging import FileSpanExporter
+from ..utils.logging import FileSpanExporter, ObserviciaLogger
 
 
 @dataclass
@@ -61,6 +61,10 @@ class ContextManager:
                  opa_endpoint: Optional[str] = None,
                  policies: Optional[List[Policy]] = None,
                  log_file: Optional[str] = None,
+                 chat_log_level: Literal['none', 'prompt', 'completion',
+                                         'both'] = 'none',
+                 chat_log_file: Optional[str] = None,
+                 console_output: bool = False,
                  trace_console: bool = False):
         self._sessions: Dict[str, TraceContext] = {}
         self._service_name = service_name
@@ -72,6 +76,12 @@ class ContextManager:
             opa_endpoint=opa_endpoint,
             policies=policies) if opa_endpoint else None
 
+        self._logger = ObserviciaLogger(service_name=service_name,
+                                        console_output=console_output,
+                                        file_output=log_file,
+                                        chat_log_level=chat_log_level,
+                                        chat_log_file=chat_log_file,
+                                        otlp_endpoint=otel_endpoint)
         # Set up tracing
         provider = TracerProvider()
 
@@ -165,6 +175,9 @@ class ObservabilityContext:
                    opa_endpoint: Optional[str] = None,
                    policies: Optional[List[Policy]] = None,
                    log_file: Optional[str] = None,
+                   chat_log_level: Literal['none', 'prompt', 'completion',
+                                           'both'] = 'none',
+                   chat_log_file: Optional[str] = None,
                    trace_console: bool = False) -> None:
         """Initialize the global context manager.
         
@@ -174,6 +187,8 @@ class ObservabilityContext:
             opa_endpoint: OPA server endpoint for policy evaluation
             policies: List of Policy objects defining available policies
             log_file: File path for logging output
+            chat_log_level: Level of chat interaction logging
+            chat_log_file: Separate file for chat interactions
             trace_console: Whether to enable console tracing
         """
         if cls._instance is None:
@@ -182,6 +197,8 @@ class ObservabilityContext:
                                            opa_endpoint=opa_endpoint,
                                            policies=policies,
                                            log_file=log_file,
+                                           chat_log_level=chat_log_level,
+                                           chat_log_file=chat_log_file,
                                            trace_console=trace_console)
 
     @classmethod
