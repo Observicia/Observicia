@@ -6,9 +6,13 @@ import faiss
 import openai
 from sentence_transformers import SentenceTransformer
 from observicia import init
+from observicia.core.context_manager import ObservabilityContext
 
 # Initialize Observicia
 init()
+
+# Set user ID for tracking
+ObservabilityContext.set_user_id("johndoe")
 
 import warnings
 
