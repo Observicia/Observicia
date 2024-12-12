@@ -31,10 +31,8 @@ class OpenAIPatcher:
         self._token_tracker = token_tracker or TokenTracker()
         self._context = context or ObservabilityContext.get_current()
         self._patched = False
-        self.logger = ObserviciaLogger("OpenAIPatcher",
-                                       console_output=False,
-                                       file_output=log_file,
-                                       otlp_endpoint=None)
+        self.logger = self._context._logger if hasattr(self._context,
+                                                       '_logger') else None
 
     def patch(self) -> Dict[str, Any]:
         """Apply patches to OpenAI SDK functions."""

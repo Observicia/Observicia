@@ -22,7 +22,7 @@ def mock_policy_engine():
 
 @pytest.fixture
 def context_manager():
-    return ContextManager(service_name="test-service", trace_console=True)
+    return ContextManager(service_name="test-service")
 
 
 @pytest.fixture
@@ -95,8 +95,7 @@ class TestContextManager:
         # Get the current tracer provider before creating context manager
         original_provider = trace.get_tracer_provider()
 
-        manager = ContextManager(service_name="test-service",
-                                 trace_console=True)
+        manager = ContextManager(service_name="test-service")
 
         # Verify that a tracer was created
         assert manager._tracer is not None
@@ -215,8 +214,7 @@ class TestObservabilityContext:
 
         ObservabilityContext.initialize(service_name="test-service",
                                         otel_endpoint="http://localhost:4317",
-                                        opa_endpoint="http://localhost:8181",
-                                        trace_console=True)
+                                        opa_endpoint="http://localhost:8181")
 
         instance = ObservabilityContext.get_current()
         assert instance._service_name == "test-service"

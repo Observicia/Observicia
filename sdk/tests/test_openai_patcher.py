@@ -11,8 +11,7 @@ from observicia.core.context_manager import ObservabilityContext
 def setup_observability_context():
     """Initialize ObservabilityContext before each test."""
     ObservabilityContext._instance = None
-    ObservabilityContext.initialize(service_name="test-service",
-                                    trace_console=True)
+    ObservabilityContext.initialize(service_name="test-service")
     yield
     ObservabilityContext._instance = None
 

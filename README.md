@@ -65,12 +65,18 @@ policies:
     description: Check for prompt compliance
     required_trace_level: basic
     risk_level: medium
-log_file: null
-trace_console: false
 logging:
-  chat_interaction_level: "both"  # Options: none, prompt, completion, both
-  chat_log_file: "chat_interactions.log"
-  console_output: false
+  file: "rag-app.json"
+  telemetry:
+    enabled: true
+    format: "json"
+  messages:
+    enabled: true
+    level: "INFO"
+  chat:
+    enabled: true
+    level: "both"
+    file: "rag-chat.json"
 ```
 
 3. Initialize in your code:
