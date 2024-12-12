@@ -51,17 +51,26 @@ pip install observicia
 
 2. Create a configuration file (`observicia_config.yaml`):
 ```yaml
-service_name: my-llm-app
-otel_endpoint: http://otel-collector:4317
-opa_endpoint: http://opa:8181
+service_name: patient-rag-app
+otel_endpoint: null
+opa_endpoint: http://opa-server:8181/
 policies:
   - name: pii_check
-    path: observicia/pii
+    path: policies/pii
     description: Check for PII in responses
     required_trace_level: enhanced
     risk_level: high
-log_file: app.log
-trace_console: true
+  - name: prompt_compliance
+    path: policies/prompt_compliance
+    description: Check for prompt compliance
+    required_trace_level: basic
+    risk_level: medium
+log_file: null
+trace_console: false
+logging:
+  chat_interaction_level: "both"  # Options: none, prompt, completion, both
+  chat_log_file: "chat_interactions.log"
+  console_output: false
 ```
 
 3. Initialize in your code:
