@@ -33,6 +33,10 @@ def init() -> None:
             policies = config.get("policies", [])
             log_file = config.get("log_file", None)
             trace_console = config.get("trace_console", False)
+            logging_config = config.get("logging", {})
+            chat_log_level = logging_config.get("chat_interaction_level",
+                                                "none")
+            chat_log_file = logging_config.get("chat_log_file", None)
 
             policy_objects = [Policy(**policy)
                               for policy in policies] if policies else None
@@ -42,6 +46,8 @@ def init() -> None:
                                             opa_endpoint=opa_endpoint,
                                             trace_console=trace_console,
                                             log_file=log_file,
+                                            chat_log_level=chat_log_level,
+                                            chat_log_file=chat_log_file,
                                             policies=policy_objects)
 
             # Auto-detect and patch installed providers
