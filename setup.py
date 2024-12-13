@@ -36,9 +36,13 @@ setup(name="observicia",
           "Programming Language :: Python :: 3.11",
           "Topic :: Software Development :: Libraries :: Python Modules",
           "Topic :: System :: Monitoring",
+          "Topic :: Scientific/Engineering :: Artificial Intelligence",
       ],
       keywords="llm, observability, monitoring, tracing, opentelemetry, opa",
+      platforms=["any"],
       project_urls={
+          "Documentation": "https://observicia.readthedocs.io/",
           "Bug Reports": "https://github.com/observicia/observicia/issues",
           "Source": "https://github.com/observicia/observicia",
+          "Discussion": "https://github.com/observicia/observicia/discussions",
       })
