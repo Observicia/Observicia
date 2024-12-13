@@ -15,6 +15,20 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
   - Token usage retention and cleanup
   - Per-session token tracking
 
+- **Transaction Tracking**
+  - Multi-round conversation tracking
+  - Transaction lifecycle management
+  - Metadata and state tracking
+  - Parent-child transaction relationships
+  - Transaction performance metrics
+
+- **Chat Logging and Analytics**
+  - Structured chat history logging
+  - Conversation flow analysis
+  - Interaction metrics
+  - Policy compliance logging
+  - Chat completion tracking
+
 - **Policy Enforcement**
   - Integration with Open Policy Agent (OPA)
   - Support for multiple policy evaluation levels
@@ -35,6 +49,12 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
     - LiteLLM
     - WatsonX
 
+- **Framework Integration**
+  - LangChain support
+    - Conversation chain monitoring
+    - Chain metrics
+    - Token usage across abstractions
+
 - **Observability Features**
   - OpenTelemetry integration
   - Span-based tracing for all LLM operations
@@ -52,22 +72,17 @@ pip install observicia
 
 2. Create a configuration file (`observicia_config.yaml`):
 ```yaml
-service_name: patient-rag-app
-otel_endpoint: null
-opa_endpoint: http://opa-server:8181/
+service_name: my-service
+otel_endpoint: http://localhost:4317
+opa_endpoint: http://localhost:8181/
 policies:
   - name: pii_check
     path: policies/pii
     description: Check for PII in responses
     required_trace_level: enhanced
     risk_level: high
-  - name: prompt_compliance
-    path: policies/prompt_compliance
-    description: Check for prompt compliance
-    required_trace_level: basic
-    risk_level: medium
 logging:
-  file: "rag-app.json"
+  file: "app.json"
   telemetry:
     enabled: true
     format: "json"
@@ -77,20 +92,58 @@ logging:
   chat:
     enabled: true
     level: "both"
-    file: "rag-chat.json"
+    file: "chat.log"
 ```
 
 3. Initialize in your code:
 ```python
 from observicia import init
+from observicia.core.context_manager import ObservabilityContext
 
 # Initialize Observicia
 init()
 
-# Then import openai to so that OpenAI code is instrumented
+# Set user ID for tracking
+ObservabilityContext.set_user_id("user123")
+
+# Start a conversation transaction
+transaction_id = ObservabilityContext.start_transaction(
+    metadata={"conversation_type": "chat"}
+)
+
+# Then import openai to instrument OpenAI code
 from openai import OpenAI
 client = OpenAI()
+
+# Your application code here...
+
+# End the transaction
+ObservabilityContext.end_transaction(
+    transaction_id,
+    metadata={"resolution": "completed"}
+)
 ```
+
+## Example Applications
+
+The SDK includes three example applications demonstrating different use cases:
+
+1. **Simple Chat Application** ([examples/simple-chat](examples/simple-chat))
+   - Basic chat interface using OpenAI
+   - Demonstrates token tracking and tracing
+   - Shows streaming response handling
+   - Includes transaction management
+
+2. **RAG Application** ([examples/rag-app](examples/rag-app))
+   - Retrieval-Augmented Generation example
+   - Shows policy enforcement for PII protection
+   - Demonstrates context tracking
+   - Includes secure document retrieval
+
+3. **LangChain Chat** ([examples/langchain-chat](examples/langchain-chat))
+   - Integration with LangChain framework
+   - Shows conversation chain tracking
+   - Token tracking across abstractions
 
 ## Deployment
 
@@ -104,29 +157,7 @@ client = OpenAI()
 
 ### Example Kubernetes Deployment
 
-The SDK includes Kubernetes manifests for deploying:
-- OpenTelemetry Collector
-- Open Policy Agent
-- Jaeger
-- Prometheus
-- PII detection service
-- Prompt compliance service
-
 See the [deploy/k8s](deploy/k8s) directory for complete deployment manifests.
-
-## Examples
-
-The SDK includes two example applications:
-
-1. **Simple Chat Application** ([examples/simple-chat](examples/simple-chat))
-   - Basic chat interface using OpenAI
-   - Demonstrates token tracking and tracing
-   - Shows streaming response handling
-
-2. **RAG Application** ([examples/rag-app](examples/rag-app))
-   - Retrieval-Augmented Generation example
-   - Shows policy enforcement for PII protection
-   - Demonstrates context tracking
 
 ## Architecture
 
@@ -144,7 +175,7 @@ flowchart TB
 
 ## Core Components
 
-- **Context Manager**: Manages trace context and session tracking
+- **Context Manager**: Manages trace context, transactions and session tracking
 - **Policy Engine**: Handles policy evaluation and enforcement
 - **Token Tracker**: Monitors token usage across providers
 - **Patch Manager**: Manages LLM provider SDK instrumentation
@@ -157,6 +188,9 @@ flowchart TB
 - ✅ Basic Policy Engine
 - ✅ Token Tracking
 - ✅ OpenTelemetry Integration
+- ✅ Transaction Management
+- ✅ Chat Logging
+- ✅ LangChain Support
 - 🚧 Additional Provider Support
 - 🚧 Advanced Policy Features
 - 🚧 UI Components
