@@ -25,7 +25,7 @@ jobs:
         id: validate
         run: |
           # Define the allowed commit message format as a regex
-          COMMIT_REGEX='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9-]+\): .{10,}$'
+          COMMIT_REGEX='^(feat|fix|docs|style|refactor|test|chore|ci)\([a-z0-9-]+\): .{10,}$'
 
           # Get the commit messages in the push or pull request
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
