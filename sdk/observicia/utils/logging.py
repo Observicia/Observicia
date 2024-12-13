@@ -141,17 +141,8 @@ class ChatFormatter(logging.Formatter):
             'service': self.service_name,
             'interaction_type': getattr(record, 'interaction_type', 'unknown'),
             'content': record.getMessage(),
+            'metadata': getattr(record, 'metadata', {})
         }
-
-        # Add metadata if present
-        metadata = getattr(record, 'metadata', {})
-        if metadata:
-            log_data['metadata'] = metadata
-
-        # Add trace context if present
-        trace_context = getattr(record, 'trace_context', {})
-        if trace_context:
-            log_data['trace_context'] = trace_context
 
         return json.dumps(log_data)
 
@@ -240,47 +231,42 @@ class ObserviciaLogger:
 
     def log_chat_interaction(
             self,
-            interaction_type: Literal['prompt', 'completion'],
+            interaction_type: Literal['prompt', 'completion', 'system'],
             content: str,
             metadata: Optional[Dict[str, Any]] = None) -> None:
-        """Log a chat interaction based on configuration."""
+        """Log a chat interaction."""
         if not self.chat_logger or interaction_type not in [
                 'prompt', 'completion', 'system'
         ]:
             return
 
         if self.chat_level == 'both' or self.chat_level == interaction_type or interaction_type == 'system':
-            # Get current user ID from context
-            user_id = None
+            complete_metadata = dict(metadata or {})
+
+            # Add interaction type to metadata
+            complete_metadata['interaction_type'] = interaction_type
+
+            # Add user ID from context if available
             if hasattr(self, '_context') and self._context:
                 user_id = self._context.get_user_id()
+                if user_id:
+                    complete_metadata['user_id'] = user_id
 
-            # Get current active transaction if available
-            current_transaction = None
+            # Add transaction info if available
             if hasattr(self, '_context') and self._context:
                 active_transactions = self._context.get_active_transactions()
                 if active_transactions:
-                    # Get the most recent transaction
                     current_transaction = next(
                         iter(active_transactions.values()))
+                    complete_metadata.update({
+                        'transaction_id':
+                        current_transaction.id,
+                        'transaction_parent_id':
+                        current_transaction.parent_id
+                    })
 
-            # Build metadata with transaction information
-            tx_metadata = metadata or {}
-            if current_transaction:
-                tx_metadata.update({
-                    'transaction_id':
-                    current_transaction.id,
-                    'transaction_parent_id':
-                    current_transaction.parent_id
-                })
-
-            extra = {
-                'interaction_type': interaction_type,
-                'metadata': tx_metadata,
-                'user_id': user_id
-            }
-
-            self.chat_logger.info(content, extra=extra)
+            self.chat_logger.info(content,
+                                  extra={'metadata': complete_metadata})
 
     def _log(self,
              level: int,
