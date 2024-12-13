@@ -5,7 +5,7 @@ Logging utilities for Observicia SDK.
 import logging
 import sys
 from datetime import datetime
-from typing import Any, Dict, Optional, Union, Literal, Sequence
+from typing import Any, Dict, Optional, Union, Literal, Sequence, TYPE_CHECKING
 import json
 from opentelemetry import trace
 from opentelemetry.trace import SpanContext
@@ -14,6 +14,9 @@ from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, ConsoleLogExporter
 from opentelemetry.sdk.trace.export import SpanExporter
 from opentelemetry.sdk.trace import ReadableSpan
+
+if TYPE_CHECKING:
+    from ..core.context_manager import ObservabilityContext
 
 
 class FileSpanExporter(SpanExporter):
@@ -131,30 +134,46 @@ class ChatFormatter(logging.Formatter):
         self.service_name = service_name
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format the log record into JSON."""
+        # Build base log data
         log_data = {
             'timestamp': datetime.fromtimestamp(record.created).isoformat(),
             'service': self.service_name,
             'interaction_type': getattr(record, 'interaction_type', 'unknown'),
             'content': record.getMessage(),
-            'metadata': getattr(record, 'metadata', {}),
-            'trace_context': getattr(record, 'trace_context', {})
         }
+
+        # Add metadata if present
+        metadata = getattr(record, 'metadata', {})
+        if metadata:
+            log_data['metadata'] = metadata
+
+        # Add trace context if present
+        trace_context = getattr(record, 'trace_context', {})
+        if trace_context:
+            log_data['trace_context'] = trace_context
+
         return json.dumps(log_data)
 
 
 class ObserviciaLogger:
     """Logger class that supports file-based logging and OpenTelemetry integration."""
 
-    def __init__(self, service_name: str, logging_config: Dict[str, Any]):
+    def __init__(self,
+                 service_name: str,
+                 logging_config: Dict[str, Any],
+                 context: Optional['ObservabilityContext'] = None):
         """
         Initialize the logger with the new configuration structure.
         
         Args:
             service_name: Name of the service
             logging_config: Logging configuration dictionary containing telemetry, messages, and chat settings
+            context: ObservabilityContext instance for transaction tracking
         """
         self.service_name = service_name
         self.logger = logging.getLogger(service_name)
+        self._context = context or ObservabilityContext.get_current()
 
         # Configure based on messages settings
         messages_config = logging_config.get("messages", {})
@@ -226,17 +245,36 @@ class ObserviciaLogger:
             metadata: Optional[Dict[str, Any]] = None) -> None:
         """Log a chat interaction based on configuration."""
         if not self.chat_logger or interaction_type not in [
-                'prompt', 'completion'
+                'prompt', 'completion', 'system'
         ]:
             return
 
-        if self.chat_level == 'both' or self.chat_level == interaction_type:
+        if self.chat_level == 'both' or self.chat_level == interaction_type or interaction_type == 'system':
             trace_context = self._get_trace_context()
+
+            # Get current active transaction if available
+            current_transaction = None
+            if hasattr(self, '_context') and self._context:
+                active_transactions = self._context.get_active_transactions()
+                if active_transactions:
+                    # Get the most recent transaction
+                    current_transaction = next(
+                        iter(active_transactions.values()))
+
+            # add metadata with transaction information
+            tx_metadata = metadata or {}
+            if current_transaction:
+                tx_metadata.update({
+                    'transaction_id':
+                    current_transaction.id,
+                    'transaction_parent_id':
+                    current_transaction.parent_id
+                })
 
             extra = {
                 'trace_context': trace_context,
                 'interaction_type': interaction_type,
-                'metadata': metadata
+                'metadata': tx_metadata
             }
 
             self.chat_logger.info(content, extra=extra)
