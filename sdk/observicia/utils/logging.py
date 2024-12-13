@@ -250,7 +250,10 @@ class ObserviciaLogger:
             return
 
         if self.chat_level == 'both' or self.chat_level == interaction_type or interaction_type == 'system':
-            trace_context = self._get_trace_context()
+            # Get current user ID from context
+            user_id = None
+            if hasattr(self, '_context') and self._context:
+                user_id = self._context.get_user_id()
 
             # Get current active transaction if available
             current_transaction = None
@@ -261,7 +264,7 @@ class ObserviciaLogger:
                     current_transaction = next(
                         iter(active_transactions.values()))
 
-            # add metadata with transaction information
+            # Build metadata with transaction information
             tx_metadata = metadata or {}
             if current_transaction:
                 tx_metadata.update({
@@ -272,9 +275,9 @@ class ObserviciaLogger:
                 })
 
             extra = {
-                'trace_context': trace_context,
                 'interaction_type': interaction_type,
-                'metadata': tx_metadata
+                'metadata': tx_metadata,
+                'user_id': user_id
             }
 
             self.chat_logger.info(content, extra=extra)
