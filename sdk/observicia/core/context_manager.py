@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Literal
+from typing import Dict, List, Optional, Set, Literal, Any
 from datetime import datetime
+from uuid import uuid4
+
 from opentelemetry import trace, baggage
 from opentelemetry.trace import Span, SpanKind
 from opentelemetry.sdk.trace import TracerProvider
@@ -9,6 +11,16 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 
 from .policy_engine import PolicyEngine, PolicyResult, Policy
 from ..utils.logging import FileSpanExporter, ObserviciaLogger
+
+
+@dataclass
+class Transaction:
+    """Represents a logical transaction (e.g. multi-round chat conversation)."""
+    id: str
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    parent_id: Optional[str] = None
 
 
 @dataclass
@@ -75,6 +87,7 @@ class ContextManager:
         self._sessions: Dict[str, TraceContext] = {}
         self._service_name = service_name
         self._current_user_id: Optional[str] = None
+        self._active_transactions: Dict[str, Transaction] = {}
 
         # Use default logging configuration if none provided
         self._logging_config = logging_config or {
@@ -101,7 +114,8 @@ class ContextManager:
 
         # Initialize logger with new configuration
         self._logger = ObserviciaLogger(service_name=service_name,
-                                        logging_config=self._logging_config)
+                                        logging_config=self._logging_config,
+                                        context=self)
 
         # Set up tracing
         provider = TracerProvider()
@@ -132,6 +146,102 @@ class ContextManager:
     def get_user_id(self) -> Optional[str]:
         """Get the current global user ID"""
         return self._current_user_id
+
+    def start_transaction(self,
+                          metadata: Optional[Dict[str, Any]] = None,
+                          parent_id: Optional[str] = None) -> str:
+        """Start a new transaction and return its ID."""
+        transaction_id = str(uuid4())
+        transaction = Transaction(id=transaction_id,
+                                  start_time=datetime.utcnow(),
+                                  metadata=metadata or {},
+                                  parent_id=parent_id)
+
+        self._active_transactions[transaction_id] = transaction
+
+        if hasattr(self, '_logger'):
+            # Log to main logger
+            self._logger.info(f"=== Transaction Started: {transaction_id} ===",
+                              extra={
+                                  'metadata': {
+                                      'transaction_id': transaction_id,
+                                      'parent_id': parent_id,
+                                      'event': 'transaction_start',
+                                      **(metadata or {})
+                                  }
+                              })
+
+            # Log to chat logger
+            if hasattr(self._logger,
+                       'chat_logger') and self._logger.chat_logger:
+                self._logger.log_chat_interaction(
+                    interaction_type='system',
+                    content=f"=== Begin Transaction: {transaction_id} ===",
+                    metadata={
+                        'transaction_id': transaction_id,
+                        'parent_id': parent_id,
+                        'event': 'transaction_start',
+                        **(metadata or {})
+                    })
+
+        return transaction_id
+
+    def end_transaction(self,
+                        transaction_id: str,
+                        metadata: Optional[Dict[str, Any]] = None) -> None:
+        """End a transaction with the given ID."""
+        if transaction_id not in self._active_transactions:
+            if hasattr(self, '_logger'):
+                self._logger.error(
+                    f"Attempt to end non-existent transaction: {transaction_id}"
+                )
+            raise ValueError(f"Transaction {transaction_id} not found")
+
+        transaction = self._active_transactions[transaction_id]
+        transaction.end_time = datetime.utcnow()
+        duration = (transaction.end_time -
+                    transaction.start_time).total_seconds()
+
+        if metadata:
+            transaction.metadata.update(metadata)
+
+        if hasattr(self, '_logger'):
+            # Log to main logger
+            self._logger.info(f"=== Transaction Ended: {transaction_id} ===",
+                              extra={
+                                  'metadata': {
+                                      'transaction_id': transaction_id,
+                                      'parent_id': transaction.parent_id,
+                                      'event': 'transaction_end',
+                                      'duration_seconds': duration,
+                                      **(transaction.metadata or {})
+                                  }
+                              })
+
+            # Log to chat logger
+            if hasattr(self._logger,
+                       'chat_logger') and self._logger.chat_logger:
+                self._logger.log_chat_interaction(
+                    interaction_type='system',
+                    content=
+                    f"=== End Transaction: {transaction_id} === (Duration: {duration:.2f}s)",
+                    metadata={
+                        'transaction_id': transaction_id,
+                        'parent_id': transaction.parent_id,
+                        'event': 'transaction_end',
+                        'duration_seconds': duration,
+                        **(transaction.metadata or {})
+                    })
+
+        del self._active_transactions[transaction_id]
+
+    def get_transaction(self, transaction_id: str) -> Optional[Transaction]:
+        """Get transaction details by ID."""
+        return self._active_transactions.get(transaction_id)
+
+    def get_active_transactions(self) -> Dict[str, Transaction]:
+        """Get all active transactions."""
+        return self._active_transactions.copy()
 
     async def create_span(
         self,
@@ -234,3 +344,37 @@ class ObservabilityContext:
         if cls._instance is None:
             raise RuntimeError("ObservabilityContext not initialized")
         return cls._instance.get_user_id()
+
+    @classmethod
+    def start_transaction(cls,
+                          metadata: Optional[Dict[str, Any]] = None,
+                          parent_id: Optional[str] = None) -> str:
+        """Start a new transaction."""
+        if cls._instance is None:
+            raise RuntimeError("ObservabilityContext not initialized")
+        return cls._instance.start_transaction(metadata=metadata,
+                                               parent_id=parent_id)
+
+    @classmethod
+    def end_transaction(cls,
+                        transaction_id: str,
+                        metadata: Optional[Dict[str, Any]] = None) -> None:
+        """End a transaction."""
+        if cls._instance is None:
+            raise RuntimeError("ObservabilityContext not initialized")
+        return cls._instance.end_transaction(transaction_id=transaction_id,
+                                             metadata=metadata)
+
+    @classmethod
+    def get_transaction(cls, transaction_id: str) -> Optional[Transaction]:
+        """Get transaction details."""
+        if cls._instance is None:
+            raise RuntimeError("ObservabilityContext not initialized")
+        return cls._instance.get_transaction(transaction_id)
+
+    @classmethod
+    def get_active_transactions(cls) -> Dict[str, Transaction]:
+        """Get all active transactions."""
+        if cls._instance is None:
+            raise RuntimeError("ObservabilityContext not initialized")
+        return cls._instance.get_active_transactions()

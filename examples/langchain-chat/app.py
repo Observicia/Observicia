@@ -26,25 +26,26 @@ conversation = ConversationChain(llm=llm, memory=memory)
 
 # Sample prompts for multi-round chat
 sample_prompts = [
-    "Hello! How are you today?", "What's the weather like in New York?",
-    "Tell me a joke!", "What's the capital of France?",
-    "Who is the president of the United States of America?",
-    "What's the tallest mountain in the world?", "What's your favorite color?",
-    "What's the best movie you've ever seen in your life?",
-    "What's the meaning of life?",
-    "What's the most interesting fact you know?",
-    "What's the most beautiful place you've ever visited?",
-    "What's the best book you've ever read?", "Goodbye!"
+    "Hello! How are you today?",
+    "What's the weather like in New York?",
 ]
 
 
 def main():
     """Run the conversation with sample prompts."""
     print("Starting multi-round chat...")
+
+    # Start a chat conversation
+    transaction_id = ObservabilityContext.start_transaction(
+        metadata={"conversation_type": "multi-round-chat"})
+
     for prompt in sample_prompts:
         print(f"User: {prompt}")
         response = conversation.run(prompt)
         print(f"AI: {response}\n")
+
+    ObservabilityContext.end_transaction(transaction_id,
+                                         metadata={"resolution": "completed"})
 
 
 if __name__ == "__main__":
