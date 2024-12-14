@@ -7,11 +7,9 @@ from observicia.core.policy_engine import PolicyEngine, PolicyResult, Policy
 from observicia.core.tracing_manager import TracingClient
 from observicia.core.token_tracker import TokenTracker
 from observicia.core.patch_manager import PatchManager
-
 from typing import List, Optional, Dict, Any
 import os
 import yaml
-from pathlib import Path
 
 __version__ = "0.1.8"
 
@@ -22,18 +20,13 @@ def init() -> None:
     config_file = os.environ.get("OBSERVICIA_CONFIG_FILE",
                                  "observicia_config.yaml")
 
-    # Default telemetry configuration
-    default_telemetry = {
-        "enabled": False,
-        "format": "json",
-        "database_path": str(Path.home() / '.observicia' / 'telemetry.db'),
-        "retention_days": 30
-    }
-
     # Default logging configuration
     default_logging = {
         "file": None,
-        "telemetry": default_telemetry,
+        "telemetry": {
+            "enabled": False,
+            "format": "json"
+        },
         "messages": {
             "enabled": False,
             "level": "INFO"
@@ -54,26 +47,7 @@ def init() -> None:
             otel_endpoint = config.get("otel_endpoint", None)
             opa_endpoint = config.get("opa_endpoint", None)
             policies = config.get("policies", [])
-
-            # Merge logging config with defaults
-            logging_config = config.get("logging", {})
-            telemetry_config = logging_config.get("telemetry", {})
-
-            # Ensure all telemetry defaults are present
-            if "telemetry" in logging_config:
-                logging_config["telemetry"] = {
-                    **default_telemetry,
-                    **telemetry_config
-                }
-
-            # Create SQLite directory if needed
-            if telemetry_config.get("format") == "sqlite":
-                db_path = Path(
-                    telemetry_config.get("database_path",
-                                         default_telemetry["database_path"]))
-                db_path.parent.mkdir(parents=True, exist_ok=True)
-
-            logging_config = {**default_logging, **logging_config}
+            logging_config = config.get("logging", default_logging)
 
             policy_objects = [Policy(**policy)
                               for policy in policies] if policies else None
