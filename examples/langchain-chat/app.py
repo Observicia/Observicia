@@ -26,8 +26,17 @@ conversation = ConversationChain(llm=llm, memory=memory)
 
 # Sample prompts for multi-round chat
 sample_prompts = [
-    "Hello! How are you today?",
-    "What's the weather like in New York?",
+    "Hello! How are you today?", "What's the weather like in New York?",
+    "Tell me a joke!", "What's the capital of France?",
+    "Who is the current President of the United States?",
+    "What's your favorite color?", "What's the meaning of life?",
+    "What's the best programming language?", "What's your favorite movie?",
+    "What's your favorite book?", "What's your favorite food?",
+    "What's your favorite animal?", "What's your favorite song?",
+    "What's your favorite sport?", "What's your favorite hobby?",
+    "What's your favorite TV show?", "What's your favorite video game?",
+    "What's your favorite place to visit?", "What's your favorite season?",
+    "Goodbye!"
 ]
 
 
