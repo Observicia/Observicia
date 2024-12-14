@@ -100,13 +100,13 @@ logging:
 from observicia import init
 from observicia.core.context_manager import ObservabilityContext
 
-# Initialize Observicia
+# Required - Initialize Observicia
 init()
 
-# Set user ID for tracking
+# Optional - Set user ID for tracking
 ObservabilityContext.set_user_id("user123")
 
-# Start a conversation transaction
+# Optional - Start a conversation transaction
 transaction_id = ObservabilityContext.start_transaction(
     metadata={"conversation_type": "chat"}
 )
@@ -117,7 +117,7 @@ client = OpenAI()
 
 # Your application code here...
 
-# End the transaction
+# Optional - End the transaction
 ObservabilityContext.end_transaction(
     transaction_id,
     metadata={"resolution": "completed"}
@@ -180,6 +180,13 @@ flowchart TB
 - **Token Tracker**: Monitors token usage across providers
 - **Patch Manager**: Manages LLM provider SDK instrumentation
 - **Tracing Manager**: Handles OpenTelemetry integration
+
+## Token Usage Visualization
+
+The SDK includes [tools](util/log_to_csv.py) to visualize token usage metrics through Grafana dashboards.
+
+![Token Usage Dashboard](dashboard/Observicia-llm-token-usage-dashboard.jpg)
+
 
 ## Development Status
 
