@@ -11,6 +11,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 
 from .policy_engine import PolicyEngine, PolicyResult, Policy
 from ..utils.logging import FileSpanExporter, ObserviciaLogger
+from ..utils.exporter import SQLiteSpanExporter
 
 
 @dataclass
@@ -89,9 +90,18 @@ class ContextManager:
         self._current_user_id: Optional[str] = None
         self._active_transactions: Dict[str, Transaction] = {}
 
+        # Initialize policy engine if OPA endpoint is provided
+        self.policy_engine = PolicyEngine(
+            opa_endpoint=opa_endpoint,
+            policies=policies) if opa_endpoint else None
+
         # Use default logging configuration if none provided
         self._logging_config = logging_config or {
             "file": None,
+            "sqlite": {
+                "enabled": False,
+                "database": "observicia.db"
+            },
             "telemetry": {
                 "enabled": True,
                 "format": "json"
@@ -106,11 +116,6 @@ class ContextManager:
                 "file": None
             }
         }
-
-        # Initialize policy engine if OPA endpoint is provided
-        self.policy_engine = PolicyEngine(
-            opa_endpoint=opa_endpoint,
-            policies=policies) if opa_endpoint else None
 
         # Initialize logger with new configuration
         self._logger = ObserviciaLogger(service_name=service_name,
@@ -131,6 +136,13 @@ class ContextManager:
             file_processor = BatchSpanProcessor(
                 FileSpanExporter(self._logging_config["file"]))
             provider.add_span_processor(file_processor)
+
+        # Add SQLite exporter if enabled
+        if (self._logging_config["sqlite"]["enabled"]
+                and self._logging_config["sqlite"]["database"]):
+            sqlite_processor = BatchSpanProcessor(
+                SQLiteSpanExporter(self._logging_config["sqlite"]["database"]))
+            provider.add_span_processor(sqlite_processor)
 
         trace.set_tracer_provider(provider)
         self._tracer = trace.get_tracer(service_name)
