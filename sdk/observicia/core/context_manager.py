@@ -89,6 +89,11 @@ class ContextManager:
         self._current_user_id: Optional[str] = None
         self._active_transactions: Dict[str, Transaction] = {}
 
+        # Initialize policy engine if OPA endpoint is provided
+        self.policy_engine = PolicyEngine(
+            opa_endpoint=opa_endpoint,
+            policies=policies) if opa_endpoint else None
+
         # Use default logging configuration if none provided
         self._logging_config = logging_config or {
             "file": None,
@@ -106,11 +111,6 @@ class ContextManager:
                 "file": None
             }
         }
-
-        # Initialize policy engine if OPA endpoint is provided
-        self.policy_engine = PolicyEngine(
-            opa_endpoint=opa_endpoint,
-            policies=policies) if opa_endpoint else None
 
         # Initialize logger with new configuration
         self._logger = ObserviciaLogger(service_name=service_name,
