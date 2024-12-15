@@ -14,6 +14,7 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
   - Stream-aware token counting
   - Token usage retention and cleanup
   - Per-session token tracking
+  - Configurable data retention policies
 
 - **Transaction Tracking**
   - Multi-round conversation tracking
@@ -28,6 +29,20 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
   - Interaction metrics
   - Policy compliance logging
   - Chat completion tracking
+
+- **Telemetry Storage and Export**
+  - SQLite exporter for persistent telemetry storage
+    - Structured schema for token usage and metrics
+    - Transaction and trace correlation
+    - Query-friendly format for analytics
+  - Redis exporter with configurable retention
+    - Time-based data retention policies
+    - Real-time metrics access
+    - Distributed telemetry storage
+  - OpenTelemetry integration
+    - Standard OTLP export support
+    - Custom attribute mapping
+    - Span context preservation
 
 - **Policy Enforcement**
   - Integration with Open Policy Agent (OPA)
@@ -86,6 +101,13 @@ logging:
   telemetry:
     enabled: true
     format: "json"
+    redis:
+      enabled: true
+      host: "localhost"
+      port: 6379
+      db: 0
+      key_prefix: "observicia:telemetry:"
+      retention_hours: 24
   messages:
     enabled: true
     level: "INFO"
@@ -124,6 +146,27 @@ ObservabilityContext.end_transaction(
 )
 ```
 
+## Architecture
+
+```mermaid
+flowchart TB
+    App[Application] --> SDK[Observicia SDK]
+    SDK --> Providers[LLM Providers]
+    SDK --> OPA[Open Policy Agent]
+    SDK --> OTEL[OpenTelemetry Collector]
+    SDK --> SQLite[(SQLite)]
+    SDK --> Redis[(Redis)]
+    OTEL --> Jaeger[Jaeger]
+    OTEL --> Prom[Prometheus]
+    OPA --> PII[PII Detection Service]
+    OPA --> Compliance[Prompt Compliance Service]
+
+    subgraph Telemetry Storage
+        SQLite
+        Redis
+    end
+```
+
 ## Example Applications
 
 The SDK includes three example applications demonstrating different use cases:
@@ -158,20 +201,6 @@ The SDK includes three example applications demonstrating different use cases:
 ### Example Kubernetes Deployment
 
 See the [deploy/k8s](deploy/k8s) directory for complete deployment manifests.
-
-## Architecture
-
-```mermaid
-flowchart TB
-    App[Application] --> SDK[Observicia SDK]
-    SDK --> Providers[LLM Providers]
-    SDK --> OPA[Open Policy Agent]
-    SDK --> OTEL[OpenTelemetry Collector]
-    OTEL --> Jaeger[Jaeger]
-    OTEL --> Prom[Prometheus]
-    OPA --> PII[PII Detection Service]
-    OPA --> Compliance[Prompt Compliance Service]
-```
 
 ## Core Components
 
