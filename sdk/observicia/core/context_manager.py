@@ -11,7 +11,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 
 from .policy_engine import PolicyEngine, PolicyResult, Policy
 from ..utils.logging import FileSpanExporter, ObserviciaLogger
-from ..utils.exporter import SQLiteSpanExporter
+from ..utils.exporter import SQLiteSpanExporter, RedisSpanExporter
 
 
 @dataclass
@@ -98,10 +98,6 @@ class ContextManager:
         # Use default logging configuration if none provided
         self._logging_config = logging_config or {
             "file": None,
-            "sqlite": {
-                "enabled": False,
-                "database": "observicia.db"
-            },
             "telemetry": {
                 "enabled": True,
                 "format": "json"
@@ -138,12 +134,26 @@ class ContextManager:
             provider.add_span_processor(file_processor)
 
         # Add SQLite exporter if enabled
-        if (self._logging_config["sqlite"]["enabled"]
-                and self._logging_config["sqlite"]["database"]):
+        if (self._logging_config.get("sqlite", {}).get("enabled", False)
+                and self._logging_config["sqlite"].get("database", None)):
             sqlite_processor = BatchSpanProcessor(
                 SQLiteSpanExporter(self._logging_config["sqlite"]["database"]))
             provider.add_span_processor(sqlite_processor)
 
+        # Add Redis exporter if enabled
+        redis_config = self._logging_config.get("telemetry",
+                                                {}).get("redis", {})
+        if redis_config.get("enabled", False):
+            redis_processor = BatchSpanProcessor(
+                RedisSpanExporter(
+                    host=redis_config.get("host", "localhost"),
+                    port=redis_config.get("port", 6379),
+                    db=redis_config.get("db", 0),
+                    password=redis_config.get("password"),
+                    key_prefix=redis_config.get("key_prefix",
+                                                "observicia:telemetry:"),
+                    retention_hours=redis_config.get("retention_hours", 24)))
+            provider.add_span_processor(redis_processor)
         trace.set_tracer_provider(provider)
         self._tracer = trace.get_tracer(service_name)
 
