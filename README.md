@@ -16,6 +16,25 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
   - Per-session token tracking
   - Configurable data retention policies
 
+- **LLM Backend Support**
+  - OpenAI
+    - Chat completions (sync/async)
+    - Text completions (sync/async)
+    - Embeddings
+    - Image generation
+    - File operations
+    - Streaming support
+  - Ollama
+    - Local model deployment
+    - Chat completions
+    - Text generation
+    - Embeddings
+    - Streaming support
+  - Basic scaffolding for:
+    - Anthropic
+    - LiteLLM
+    - WatsonX
+
 - **Transaction Tracking**
   - Multi-round conversation tracking
   - Transaction lifecycle management
@@ -50,19 +69,6 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
   - Risk level assessment (low, medium, high, critical)
   - Custom policy definition support
   - Synchronous and asynchronous policy evaluation
-
-- **LLM Provider Integration**
-  - OpenAI (fully implemented)
-    - Chat completions (sync/async)
-    - Text completions (sync/async)
-    - Embeddings
-    - Image generation
-    - File operations
-    - Streaming support
-  - Basic scaffolding for:
-    - Anthropic
-    - LiteLLM
-    - WatsonX
 
 - **Framework Integration**
   - LangChain support
@@ -133,11 +139,20 @@ transaction_id = ObservabilityContext.start_transaction(
     metadata={"conversation_type": "chat"}
 )
 
-# Then import openai to instrument OpenAI code
+# Use with OpenAI
 from openai import OpenAI
 client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
 
-# Your application code here...
+# Or use with Ollama
+import ollama
+response = ollama.chat(
+    model="llama2",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
 
 # Optional - End the transaction
 ObservabilityContext.end_transaction(
@@ -147,17 +162,31 @@ ObservabilityContext.end_transaction(
 ```
 
 ## Architecture
-
 ```mermaid
 flowchart TB
     App[Application] --> SDK[Observicia SDK]
-    SDK --> Providers[LLM Providers]
+    subgraph LLM Backends
+        OpenAI[OpenAI API]
+        Ollama[Ollama Local]
+        Anthropic[Anthropic API]
+        LiteLLM[LiteLLM]
+        WatsonX[WatsonX]
+    end
+
+    SDK --> OpenAI
+    SDK --> Ollama
+    SDK --> Anthropic
+    SDK --> LiteLLM
+    SDK --> WatsonX
+
     SDK --> OPA[Open Policy Agent]
     SDK --> OTEL[OpenTelemetry Collector]
     SDK --> SQLite[(SQLite)]
     SDK --> Redis[(Redis)]
+
     OTEL --> Jaeger[Jaeger]
     OTEL --> Prom[Prometheus]
+
     OPA --> PII[PII Detection Service]
     OPA --> Compliance[Prompt Compliance Service]
 
@@ -165,6 +194,12 @@ flowchart TB
         SQLite
         Redis
     end
+
+    style OpenAI fill:#85e,color:#fff
+    style Ollama fill:#85e,color:#fff
+    style Anthropic fill:#ccc,color:#666
+    style LiteLLM fill:#ccc,color:#666
+    style WatsonX fill:#ccc,color:#666
 ```
 
 ## Example Applications
