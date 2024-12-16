@@ -25,6 +25,7 @@ setup(name="observicia",
           "pyyaml>=6.0",
           "redis>=5.2.0",
           "ollama>=0.4.4",
+          "ibm_watsonx_ai>=1.1.26",
       ],
       classifiers=[
           "Development Status :: 4 - Beta",
