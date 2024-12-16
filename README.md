@@ -30,10 +30,14 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
     - Text generation
     - Embeddings
     - Streaming support
+  - WatsonX
+    - Foundation models integration
+    - Text generation
+    - Chat completions
+    - Parameter controls
   - Basic scaffolding for:
     - Anthropic
     - LiteLLM
-    - WatsonX
 
 - **Transaction Tracking**
   - Multi-round conversation tracking
@@ -197,9 +201,9 @@ flowchart TB
 
     style OpenAI fill:#85e,color:#fff
     style Ollama fill:#85e,color:#fff
+    style WatsonX fill:#85e,color:#fff
     style Anthropic fill:#ccc,color:#666
     style LiteLLM fill:#ccc,color:#666
-    style WatsonX fill:#ccc,color:#666
 ```
 
 ## Example Applications
