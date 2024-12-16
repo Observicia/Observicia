@@ -2,7 +2,7 @@
 
 This project provides tools to visualize LLM token usage metrics from Observicia telemetry logs using Grafana.
 
-![Token Usage Dashboard](Observicia-sqlite-dashboard.mp4)
+![Token Usage Dashboard](Observicia-sqlite-dashboard.gif)
 
 ## Overview
 
