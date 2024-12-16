@@ -2,50 +2,66 @@
 
 This project provides tools to visualize LLM token usage metrics from Observicia telemetry logs using Grafana.
 
-![Token Usage Dashboard](Observicia-llm-token-usage-dashboard.jpg)
+![Token Usage Dashboard](Observicia-sqlite-dashboard.webm)
 
 ## Overview
 
 The solution consists of two parts:
-1. A Python script to convert Observicia telemetry logs to CSV format
-2. A Grafana dashboard configuration that visualizes the token usage data
+1. A SQLite database storing Observicia telemetry data
+2. A Grafana dashboard configuration that visualizes the token usage metrics
 
 ## Prerequisites
 
 - Python 3.8+
 - Grafana 9.0+
-- Yesoreyeram Infinity Datasource plugin for Grafana
+- Grafana SQLite plugin
 
-## Step 1: Convert Telemetry Logs to CSV
+## Step 1: Set Up SQLite Database
 
-1. Run the [converter script](../util/log_to_csv.py) with the following arguments:
-   - `--input`: Path to the telemetry log file
-   - `--output`: Path to the output CSV file
+Use SQLite as Observicia telemetry data store:
 
-
-1. Convert your telemetry log to CSV:
-```bash
-python log_to_csv.py --input telemetry.log --output token_usage.csv
+```yaml
+service_name: langchain-app
+otel_endpoint: null
+opa_endpoint: http://opa-server:8181/
+policies:
+logging:
+  file: "observicia.log"
+  sqlite:
+    enabled: true
+    database: "observicia.db"
+  telemetry:
+    enabled: true
+    format: "json"
+  messages:
+    enabled: true
+    level: "INFO"
+  chat:
+    enabled: true
+    level: "both"
+    file: "langchain-chat.json"
 ```
+
 
 ## Step 2: Set Up Grafana
 
-1. Install Infinity Datasource plugin:
+1. Install SQLite plugin:
    - Navigate to Configuration > Plugins
-   - Search for "Infinity"
-   - Install "Yesoreyeram Infinity Datasource"
+   - Search for "SQLite"
+   - Install the SQLite plugin
 
-2. Add Infinity datasource:
+2. Add SQLite datasource:
    - Go to Configuration > Data Sources
    - Click "Add data source"
-   - Search for and select "Infinity"
+   - Search for and select "SQLite"
+   - Configure the path to your SQLite database
    - Click "Save & Test"
 
 3. Create the dashboard:
    - Click the "+" icon in the sidebar
    - Select "Import"
    - Paste the provided dashboard JSON
-   - Update CSV file path in each panel's query to point to your `token_usage.csv`
+   - Select your SQLite datasource
    - Click "Import"
 
 ## Dashboard Features
@@ -69,6 +85,18 @@ The dashboard includes:
    - Sortable columns
    - Pagination support
 
+5. **Per-User Analytics**
+   - Total token usage per user
+   - Time series of user token consumption
+   - Daily usage patterns
+   - Cumulative token usage tracking
+   - User comparison metrics
+
+The per-user views allow you to:
+- Track individual user consumption patterns
+- Compare usage across different users
+- Monitor daily and cumulative token usage
+- Analyze usage trends over time
 
 ---
 *This example is part of the [Observicia SDK](https://github.com/observicia/observicia) documentation.*

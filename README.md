@@ -247,9 +247,9 @@ See the [deploy/k8s](deploy/k8s) directory for complete deployment manifests.
 
 ## Token Usage Visualization
 
-The SDK includes [tools](util/log_to_csv.py) to visualize token usage metrics through Grafana dashboards.
+The SDK includes sample tools to visualize token usage metrics through Grafana dashboards.
 
-![Token Usage Dashboard](dashboard/Observicia-llm-token-usage-dashboard.jpg)
+![Token Usage Dashboard](dashboard/Observicia-sqlite-dashboard.webm)
 
 
 ## Development Status
