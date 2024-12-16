@@ -249,7 +249,8 @@ See the [deploy/k8s](deploy/k8s) directory for complete deployment manifests.
 
 The SDK includes sample tools to visualize token usage metrics through Grafana dashboards.
 
-![Token Usage Dashboard](dashboard/Observicia-sqlite-dashboard.gif)
+[![Token Usage Dashboard](https://img.youtube.com/vi/IkYBNWHVIXQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=IkYBNWHVIXQ)
+
 
 
 ## Development Status
