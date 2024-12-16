@@ -18,13 +18,13 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 1,
+    "id": 3,
     "links": [],
     "panels": [
       {
         "datasource": {
-          "type": "yesoreyeram-infinity-datasource",
-          "uid": "ae6uixix76yo0e"
+          "type": "frser-sqlite-datasource",
+          "uid": "fe6x12x41pw5ca"
         },
         "fieldConfig": {
           "defaults": {
@@ -103,42 +103,19 @@
         "pluginVersion": "11.3.1",
         "targets": [
           {
-            "columns": [
-              {
-                "selector": "timestamp",
-                "text": "Time",
-                "type": "timestamp"
-              },
-              {
-                "selector": "prompt_tokens",
-                "text": "Prompt Tokens",
-                "type": "number"
-              },
-              {
-                "selector": "completion_tokens",
-                "text": "Completion Tokens",
-                "type": "number"
-              }
-            ],
-            "data": "timestamp,transaction_id,user_id,model,provider,request_type,prompt_tokens,completion_tokens,total_tokens,duration_ms,success\r\n2024-12-13T02:49:38.998496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,46,109,1287.963,True\r\n2024-12-13T02:49:38.998876,,johndoe,gpt-3.5-turbo-instruct,openai,completion,123,48,171,796.817,True\r\n2024-12-13T02:49:38.999096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,181,19,200,780.66,True\r\n2024-12-13T02:49:38.999364,,johndoe,gpt-3.5-turbo-instruct,openai,completion,212,49,261,791.312,True\r\n2024-12-13T02:49:44.002187,,johndoe,gpt-3.5-turbo-instruct,openai,completion,277,36,313,733.711,True\r\n2024-12-13T02:49:44.002425,,johndoe,gpt-3.5-turbo-instruct,openai,completion,327,56,383,1310.668,True\r\n2024-12-13T02:49:44.002664,,johndoe,gpt-3.5-turbo-instruct,openai,completion,394,37,431,1030.527,True\r\n2024-12-13T02:49:44.002858,,johndoe,gpt-3.5-turbo-instruct,openai,completion,449,39,488,629.609,True\r\n2024-12-13T02:49:44.003048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,500,59,559,961.222,True\r\n2024-12-13T02:49:47.518906,,johndoe,gpt-3.5-turbo-instruct,openai,completion,573,60,633,864.883,True\r\n2024-12-13T02:49:47.519157,,johndoe,gpt-3.5-turbo-instruct,openai,completion,648,49,697,1268.634,True\r\n2024-12-13T02:49:47.519341,,johndoe,gpt-3.5-turbo-instruct,openai,completion,711,42,753,1010.319,True\r\n2024-12-13T02:49:47.519518,,johndoe,gpt-3.5-turbo-instruct,openai,completion,760,36,796,1037.311,True\r\n2024-12-13T15:54:36.388534,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,36,99,1116.579,True\r\n2024-12-13T15:54:36.388820,,johndoe,gpt-3.5-turbo-instruct,openai,completion,113,65,178,845.01,True\r\n2024-12-13T15:54:36.389048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,188,53,241,1363.178,True\r\n2024-12-13T15:54:41.393015,,johndoe,gpt-3.5-turbo-instruct,openai,completion,253,52,305,723.886,True\r\n2024-12-13T15:54:41.393270,,johndoe,gpt-3.5-turbo-instruct,openai,completion,321,51,372,824.422,True\r\n2024-12-13T15:54:41.393510,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,51,437,1261.083,True\r\n2024-12-13T15:54:41.393715,,johndoe,gpt-3.5-turbo-instruct,openai,completion,448,38,486,848.543,True\r\n2024-12-13T15:54:41.393908,,johndoe,gpt-3.5-turbo-instruct,openai,completion,503,51,554,958.632,True\r\n2024-12-13T15:54:45.643202,,johndoe,gpt-3.5-turbo-instruct,openai,completion,566,37,603,1175.379,True\r\n2024-12-13T15:54:45.643484,,johndoe,gpt-3.5-turbo-instruct,openai,completion,616,48,664,941.267,True\r\n2024-12-13T15:54:45.643651,,johndoe,gpt-3.5-turbo-instruct,openai,completion,679,68,747,1187.947,True\r\n2024-12-13T15:54:45.643809,,johndoe,gpt-3.5-turbo-instruct,openai,completion,761,77,838,1244.805,True\r\n2024-12-13T15:54:45.643985,,johndoe,gpt-3.5-turbo-instruct,openai,completion,845,13,858,653.125,True\r\n2024-12-13T15:56:44.034115,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1598.016,True\r\n2024-12-13T15:56:44.034524,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,67,185,1220.378,True\r\n2024-12-13T15:56:44.035304,,johndoe,gpt-3.5-turbo-instruct,openai,completion,195,52,247,1269.41,True\r\n2024-12-13T15:56:49.038722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,259,45,304,1224.535,True\r\n2024-12-13T15:56:49.039196,,johndoe,gpt-3.5-turbo-instruct,openai,completion,320,46,366,663.07,True\r\n2024-12-13T15:56:49.039481,,johndoe,gpt-3.5-turbo-instruct,openai,completion,380,50,430,841.624,True\r\n2024-12-13T15:56:49.039686,,johndoe,gpt-3.5-turbo-instruct,openai,completion,440,52,492,882.98,True\r\n2024-12-13T15:56:49.039884,,johndoe,gpt-3.5-turbo-instruct,openai,completion,510,51,561,1286.568,True\r\n2024-12-13T15:56:53.184023,,johndoe,gpt-3.5-turbo-instruct,openai,completion,572,34,606,619.318,True\r\n2024-12-13T15:56:53.184225,,johndoe,gpt-3.5-turbo-instruct,openai,completion,620,55,675,759.117,True\r\n2024-12-13T15:56:53.184405,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,65,755,1254.002,True\r\n2024-12-13T15:56:53.184576,,johndoe,gpt-3.5-turbo-instruct,openai,completion,769,45,814,903.524,True\r\n2024-12-13T15:56:53.184772,,johndoe,gpt-3.5-turbo-instruct,openai,completion,821,13,834,927.562,True\r\n2024-12-13T16:01:03.150128,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3580.793,True\r\n2024-12-13T16:01:08.153017,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,49,383,851.584,True\r\n2024-12-13T16:01:08.153434,,johndoe,gpt-3.5-turbo-instruct,openai,completion,393,17,410,613.005,True\r\n2024-12-13T16:01:08.153733,,johndoe,gpt-3.5-turbo-instruct,openai,completion,422,50,472,1076.018,True\r\n2024-12-13T16:01:08.153958,,johndoe,gpt-3.5-turbo-instruct,openai,completion,488,39,527,800.002,True\r\n2024-12-13T16:01:08.154197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,541,41,582,1170.756,True\r\n2024-12-13T16:01:08.154398,,johndoe,gpt-3.5-turbo-instruct,openai,completion,593,36,629,879.814,True\r\n2024-12-13T16:01:13.154035,,johndoe,gpt-3.5-turbo-instruct,openai,completion,647,30,677,853.427,True\r\n2024-12-13T16:01:13.154331,,johndoe,gpt-3.5-turbo-instruct,openai,completion,689,40,729,1046.718,True\r\n2024-12-13T16:01:13.154552,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,59,802,1342.771,True\r\n2024-12-13T16:01:13.154761,,johndoe,gpt-3.5-turbo-instruct,openai,completion,817,59,876,1013.562,True\r\n2024-12-13T16:01:14.065492,,johndoe,gpt-3.5-turbo-instruct,openai,completion,891,87,978,1277.086,True\r\n2024-12-13T16:01:14.065676,,johndoe,gpt-3.5-turbo-instruct,openai,completion,985,12,997,415.173,True\r\n2024-12-13T16:05:37.927351,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1289.456,True\r\n2024-12-13T16:05:37.927745,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,59,177,1284.912,True\r\n2024-12-13T16:05:37.927968,,johndoe,gpt-3.5-turbo-instruct,openai,completion,187,48,235,999.939,True\r\n2024-12-13T16:05:42.930944,,johndoe,gpt-3.5-turbo-instruct,openai,completion,247,63,310,1197.145,True\r\n2024-12-13T16:05:42.931208,,johndoe,gpt-3.5-turbo-instruct,openai,completion,326,47,373,907.648,True\r\n2024-12-13T16:05:42.931418,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,59,445,1144.202,True\r\n2024-12-13T16:05:42.931620,,johndoe,gpt-3.5-turbo-instruct,openai,completion,455,36,491,818.036,True\r\n2024-12-13T16:05:42.931815,,johndoe,gpt-3.5-turbo-instruct,openai,completion,509,39,548,788.682,True\r\n2024-12-13T16:05:46.061357,,johndoe,gpt-3.5-turbo-instruct,openai,completion,560,44,604,864.701,True\r\n2024-12-13T16:05:46.061602,,johndoe,gpt-3.5-turbo-instruct,openai,completion,617,58,675,1005.639,True\r\n2024-12-13T16:05:46.061775,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,39,729,695.417,True\r\n2024-12-13T16:05:46.061938,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,28,771,533.852,True\r\n2024-12-13T16:05:46.062096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,778,18,796,594.581,True\r\n2024-12-13T16:08:26.006275,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1587.014,True\r\n2024-12-13T16:08:26.026457,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,54,181,1117.294,True\r\n2024-12-13T17:15:59.263983,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,59,122,1553.0,True\r\n2024-12-13T17:15:59.264197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,136,64,200,1158.525,True\r\n2024-12-13T17:17:55.930521,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3015.276,True\r\n2024-12-13T17:17:58.810496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,78,412,3854.114,True\r\n2024-12-13T17:18:58.697218,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,56,119,1476.027,True\r\n2024-12-13T17:18:58.697438,,johndoe,gpt-3.5-turbo-instruct,openai,completion,133,69,202,1545.826,True\r\n2024-12-13T17:20:12.666360,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,68,131,1430.69,True\r\n2024-12-13T17:25:59.956272,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,44,107,1073.482,True\r\n2024-12-13T17:25:59.956493,,johndoe,gpt-3.5-turbo-instruct,openai,completion,121,59,180,1473.536,True\r\n2024-12-13T17:28:27.581022,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,2962.375,True\r\n2024-12-13T17:28:27.581254,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,55,389,1200.276,True\r\n2024-12-13T17:29:28.524722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,55,118,1264.661,True\r\n2024-12-13T17:29:28.524954,,johndoe,gpt-3.5-turbo-instruct,openai,completion,132,71,203,879.389,True\r\n2024-12-13T17:29:50.260145,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1377.831,True\r\n2024-12-13T17:29:50.260356,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,50,177,898.52,True\r\n2024-12-13T22:49:31.060431,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,43,106,1207.162,True\r\n2024-12-13T22:49:31.060656,,johndoe,gpt-3.5-turbo-instruct,openai,completion,120,55,175,735.464,True\r\n",
             "datasource": {
-              "type": "yesoreyeram-infinity-datasource",
-              "uid": "infinity"
+              "type": "sqlite-datasource",
+              "uid": "sqlite"
             },
-            "filters": [],
-            "format": "table",
-            "global_query_id": "",
-            "parser": "backend",
+            "queryText": "WITH formatted_telemetry AS (\n    SELECT \n        SUBSTR(timestamp, 1, 19) || 'Z' as time,\n        prompt_tokens,\n        completion_tokens,\n        total_tokens\n    FROM telemetry\n)\nSELECT \n    time,\n    prompt_tokens,\n    completion_tokens\nFROM formatted_telemetry\nORDER BY time ASC;\n",
+            "queryType": "time series",
+            "rawQuery": true,
+            "rawQueryText": "WITH formatted_telemetry AS (\n    SELECT \n        SUBSTR(timestamp, 1, 19) || 'Z' as time,\n        prompt_tokens,\n        completion_tokens,\n        total_tokens\n    FROM telemetry\n)\nSELECT \n    time,\n    prompt_tokens,\n    completion_tokens\nFROM formatted_telemetry\nORDER BY time ASC;\n",
             "refId": "A",
-            "root_selector": "",
-            "source": "inline",
-            "type": "csv",
-            "uql": "parse-csv",
-            "url": "file:///Users/hchen/Downloads/token_usage.csv",
-            "url_options": {
-              "data": "",
-              "method": "GET"
-            }
+            "timeColumns": [
+              "time",
+              "ts"
+            ]
           }
         ],
         "title": "Token Usage Over Time",
@@ -146,8 +123,8 @@
       },
       {
         "datasource": {
-          "type": "yesoreyeram-infinity-datasource",
-          "uid": "ae6uixix76yo0e"
+          "type": "frser-sqlite-datasource",
+          "uid": "fe6x12x41pw5ca"
         },
         "fieldConfig": {
           "defaults": {
@@ -202,37 +179,19 @@
         "pluginVersion": "11.3.1",
         "targets": [
           {
-            "columns": [
-              {
-                "selector": "model",
-                "text": "Model",
-                "type": "string"
-              },
-              {
-                "selector": "total_tokens",
-                "text": "Total Tokens",
-                "type": "number"
-              }
-            ],
-            "data": "timestamp,transaction_id,user_id,model,provider,request_type,prompt_tokens,completion_tokens,total_tokens,duration_ms,success\r\n2024-12-13T02:49:38.998496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,46,109,1287.963,True\r\n2024-12-13T02:49:38.998876,,johndoe,gpt-3.5-turbo-instruct,openai,completion,123,48,171,796.817,True\r\n2024-12-13T02:49:38.999096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,181,19,200,780.66,True\r\n2024-12-13T02:49:38.999364,,johndoe,gpt-3.5-turbo-instruct,openai,completion,212,49,261,791.312,True\r\n2024-12-13T02:49:44.002187,,johndoe,gpt-3.5-turbo-instruct,openai,completion,277,36,313,733.711,True\r\n2024-12-13T02:49:44.002425,,johndoe,gpt-3.5-turbo-instruct,openai,completion,327,56,383,1310.668,True\r\n2024-12-13T02:49:44.002664,,johndoe,gpt-3.5-turbo-instruct,openai,completion,394,37,431,1030.527,True\r\n2024-12-13T02:49:44.002858,,johndoe,gpt-3.5-turbo-instruct,openai,completion,449,39,488,629.609,True\r\n2024-12-13T02:49:44.003048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,500,59,559,961.222,True\r\n2024-12-13T02:49:47.518906,,johndoe,gpt-3.5-turbo-instruct,openai,completion,573,60,633,864.883,True\r\n2024-12-13T02:49:47.519157,,johndoe,gpt-3.5-turbo-instruct,openai,completion,648,49,697,1268.634,True\r\n2024-12-13T02:49:47.519341,,johndoe,gpt-3.5-turbo-instruct,openai,completion,711,42,753,1010.319,True\r\n2024-12-13T02:49:47.519518,,johndoe,gpt-3.5-turbo-instruct,openai,completion,760,36,796,1037.311,True\r\n2024-12-13T15:54:36.388534,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,36,99,1116.579,True\r\n2024-12-13T15:54:36.388820,,johndoe,gpt-3.5-turbo-instruct,openai,completion,113,65,178,845.01,True\r\n2024-12-13T15:54:36.389048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,188,53,241,1363.178,True\r\n2024-12-13T15:54:41.393015,,johndoe,gpt-3.5-turbo-instruct,openai,completion,253,52,305,723.886,True\r\n2024-12-13T15:54:41.393270,,johndoe,gpt-3.5-turbo-instruct,openai,completion,321,51,372,824.422,True\r\n2024-12-13T15:54:41.393510,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,51,437,1261.083,True\r\n2024-12-13T15:54:41.393715,,johndoe,gpt-3.5-turbo-instruct,openai,completion,448,38,486,848.543,True\r\n2024-12-13T15:54:41.393908,,johndoe,gpt-3.5-turbo-instruct,openai,completion,503,51,554,958.632,True\r\n2024-12-13T15:54:45.643202,,johndoe,gpt-3.5-turbo-instruct,openai,completion,566,37,603,1175.379,True\r\n2024-12-13T15:54:45.643484,,johndoe,gpt-3.5-turbo-instruct,openai,completion,616,48,664,941.267,True\r\n2024-12-13T15:54:45.643651,,johndoe,gpt-3.5-turbo-instruct,openai,completion,679,68,747,1187.947,True\r\n2024-12-13T15:54:45.643809,,johndoe,gpt-3.5-turbo-instruct,openai,completion,761,77,838,1244.805,True\r\n2024-12-13T15:54:45.643985,,johndoe,gpt-3.5-turbo-instruct,openai,completion,845,13,858,653.125,True\r\n2024-12-13T15:56:44.034115,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1598.016,True\r\n2024-12-13T15:56:44.034524,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,67,185,1220.378,True\r\n2024-12-13T15:56:44.035304,,johndoe,gpt-3.5-turbo-instruct,openai,completion,195,52,247,1269.41,True\r\n2024-12-13T15:56:49.038722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,259,45,304,1224.535,True\r\n2024-12-13T15:56:49.039196,,johndoe,gpt-3.5-turbo-instruct,openai,completion,320,46,366,663.07,True\r\n2024-12-13T15:56:49.039481,,johndoe,gpt-3.5-turbo-instruct,openai,completion,380,50,430,841.624,True\r\n2024-12-13T15:56:49.039686,,johndoe,gpt-3.5-turbo-instruct,openai,completion,440,52,492,882.98,True\r\n2024-12-13T15:56:49.039884,,johndoe,gpt-3.5-turbo-instruct,openai,completion,510,51,561,1286.568,True\r\n2024-12-13T15:56:53.184023,,johndoe,gpt-3.5-turbo-instruct,openai,completion,572,34,606,619.318,True\r\n2024-12-13T15:56:53.184225,,johndoe,gpt-3.5-turbo-instruct,openai,completion,620,55,675,759.117,True\r\n2024-12-13T15:56:53.184405,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,65,755,1254.002,True\r\n2024-12-13T15:56:53.184576,,johndoe,gpt-3.5-turbo-instruct,openai,completion,769,45,814,903.524,True\r\n2024-12-13T15:56:53.184772,,johndoe,gpt-3.5-turbo-instruct,openai,completion,821,13,834,927.562,True\r\n2024-12-13T16:01:03.150128,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3580.793,True\r\n2024-12-13T16:01:08.153017,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,49,383,851.584,True\r\n2024-12-13T16:01:08.153434,,johndoe,gpt-3.5-turbo-instruct,openai,completion,393,17,410,613.005,True\r\n2024-12-13T16:01:08.153733,,johndoe,gpt-3.5-turbo-instruct,openai,completion,422,50,472,1076.018,True\r\n2024-12-13T16:01:08.153958,,johndoe,gpt-3.5-turbo-instruct,openai,completion,488,39,527,800.002,True\r\n2024-12-13T16:01:08.154197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,541,41,582,1170.756,True\r\n2024-12-13T16:01:08.154398,,johndoe,gpt-3.5-turbo-instruct,openai,completion,593,36,629,879.814,True\r\n2024-12-13T16:01:13.154035,,johndoe,gpt-3.5-turbo-instruct,openai,completion,647,30,677,853.427,True\r\n2024-12-13T16:01:13.154331,,johndoe,gpt-3.5-turbo-instruct,openai,completion,689,40,729,1046.718,True\r\n2024-12-13T16:01:13.154552,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,59,802,1342.771,True\r\n2024-12-13T16:01:13.154761,,johndoe,gpt-3.5-turbo-instruct,openai,completion,817,59,876,1013.562,True\r\n2024-12-13T16:01:14.065492,,johndoe,gpt-3.5-turbo-instruct,openai,completion,891,87,978,1277.086,True\r\n2024-12-13T16:01:14.065676,,johndoe,gpt-3.5-turbo-instruct,openai,completion,985,12,997,415.173,True\r\n2024-12-13T16:05:37.927351,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1289.456,True\r\n2024-12-13T16:05:37.927745,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,59,177,1284.912,True\r\n2024-12-13T16:05:37.927968,,johndoe,gpt-3.5-turbo-instruct,openai,completion,187,48,235,999.939,True\r\n2024-12-13T16:05:42.930944,,johndoe,gpt-3.5-turbo-instruct,openai,completion,247,63,310,1197.145,True\r\n2024-12-13T16:05:42.931208,,johndoe,gpt-3.5-turbo-instruct,openai,completion,326,47,373,907.648,True\r\n2024-12-13T16:05:42.931418,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,59,445,1144.202,True\r\n2024-12-13T16:05:42.931620,,johndoe,gpt-3.5-turbo-instruct,openai,completion,455,36,491,818.036,True\r\n2024-12-13T16:05:42.931815,,johndoe,gpt-3.5-turbo-instruct,openai,completion,509,39,548,788.682,True\r\n2024-12-13T16:05:46.061357,,johndoe,gpt-3.5-turbo-instruct,openai,completion,560,44,604,864.701,True\r\n2024-12-13T16:05:46.061602,,johndoe,gpt-3.5-turbo-instruct,openai,completion,617,58,675,1005.639,True\r\n2024-12-13T16:05:46.061775,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,39,729,695.417,True\r\n2024-12-13T16:05:46.061938,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,28,771,533.852,True\r\n2024-12-13T16:05:46.062096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,778,18,796,594.581,True\r\n2024-12-13T16:08:26.006275,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1587.014,True\r\n2024-12-13T16:08:26.026457,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,54,181,1117.294,True\r\n2024-12-13T17:15:59.263983,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,59,122,1553.0,True\r\n2024-12-13T17:15:59.264197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,136,64,200,1158.525,True\r\n2024-12-13T17:17:55.930521,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3015.276,True\r\n2024-12-13T17:17:58.810496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,78,412,3854.114,True\r\n2024-12-13T17:18:58.697218,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,56,119,1476.027,True\r\n2024-12-13T17:18:58.697438,,johndoe,gpt-3.5-turbo-instruct,openai,completion,133,69,202,1545.826,True\r\n2024-12-13T17:20:12.666360,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,68,131,1430.69,True\r\n2024-12-13T17:25:59.956272,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,44,107,1073.482,True\r\n2024-12-13T17:25:59.956493,,johndoe,gpt-3.5-turbo-instruct,openai,completion,121,59,180,1473.536,True\r\n2024-12-13T17:28:27.581022,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,2962.375,True\r\n2024-12-13T17:28:27.581254,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,55,389,1200.276,True\r\n2024-12-13T17:29:28.524722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,55,118,1264.661,True\r\n2024-12-13T17:29:28.524954,,johndoe,gpt-3.5-turbo-instruct,openai,completion,132,71,203,879.389,True\r\n2024-12-13T17:29:50.260145,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1377.831,True\r\n2024-12-13T17:29:50.260356,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,50,177,898.52,True\r\n2024-12-13T22:49:31.060431,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,43,106,1207.162,True\r\n2024-12-13T22:49:31.060656,,johndoe,gpt-3.5-turbo-instruct,openai,completion,120,55,175,735.464,True\r\n",
             "datasource": {
-              "type": "yesoreyeram-infinity-datasource",
-              "uid": "infinity"
+              "type": "sqlite-datasource",
+              "uid": "sqlite"
             },
-            "filters": [],
-            "format": "table",
-            "global_query_id": "",
-            "parser": "simple",
+            "queryText": "SELECT \n    model as \"Model\",\n    SUM(total_tokens) as \"Total Tokens\"\nFROM telemetry\nGROUP BY model;\n",
+            "queryType": "table",
+            "rawQuery": true,
+            "rawQueryText": "SELECT \n    model as \"Model\",\n    SUM(total_tokens) as \"Total Tokens\"\nFROM telemetry\nGROUP BY model;\n",
             "refId": "A",
-            "root_selector": "",
-            "source": "inline",
-            "type": "csv",
-            "uql": "parse-csv",
-            "url": "file:///Users/hchen/Downloads/token_usage.csv",
-            "url_options": {
-              "data": "",
-              "method": "GET"
-            }
+            "timeColumns": [
+              "time",
+              "ts"
+            ]
           }
         ],
         "title": "Token Usage by Model",
@@ -240,8 +199,8 @@
       },
       {
         "datasource": {
-          "type": "yesoreyeram-infinity-datasource",
-          "uid": "ae6uixix76yo0e"
+          "type": "frser-sqlite-datasource",
+          "uid": "fe6x12x41pw5ca"
         },
         "fieldConfig": {
           "defaults": {
@@ -291,31 +250,19 @@
         "pluginVersion": "11.3.1",
         "targets": [
           {
-            "columns": [
-              {
-                "selector": "duration_ms",
-                "text": "Duration",
-                "type": "number"
-              }
-            ],
-            "data": "timestamp,transaction_id,user_id,model,provider,request_type,prompt_tokens,completion_tokens,total_tokens,duration_ms,success\r\n2024-12-13T02:49:38.998496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,46,109,1287.963,True\r\n2024-12-13T02:49:38.998876,,johndoe,gpt-3.5-turbo-instruct,openai,completion,123,48,171,796.817,True\r\n2024-12-13T02:49:38.999096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,181,19,200,780.66,True\r\n2024-12-13T02:49:38.999364,,johndoe,gpt-3.5-turbo-instruct,openai,completion,212,49,261,791.312,True\r\n2024-12-13T02:49:44.002187,,johndoe,gpt-3.5-turbo-instruct,openai,completion,277,36,313,733.711,True\r\n2024-12-13T02:49:44.002425,,johndoe,gpt-3.5-turbo-instruct,openai,completion,327,56,383,1310.668,True\r\n2024-12-13T02:49:44.002664,,johndoe,gpt-3.5-turbo-instruct,openai,completion,394,37,431,1030.527,True\r\n2024-12-13T02:49:44.002858,,johndoe,gpt-3.5-turbo-instruct,openai,completion,449,39,488,629.609,True\r\n2024-12-13T02:49:44.003048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,500,59,559,961.222,True\r\n2024-12-13T02:49:47.518906,,johndoe,gpt-3.5-turbo-instruct,openai,completion,573,60,633,864.883,True\r\n2024-12-13T02:49:47.519157,,johndoe,gpt-3.5-turbo-instruct,openai,completion,648,49,697,1268.634,True\r\n2024-12-13T02:49:47.519341,,johndoe,gpt-3.5-turbo-instruct,openai,completion,711,42,753,1010.319,True\r\n2024-12-13T02:49:47.519518,,johndoe,gpt-3.5-turbo-instruct,openai,completion,760,36,796,1037.311,True\r\n2024-12-13T15:54:36.388534,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,36,99,1116.579,True\r\n2024-12-13T15:54:36.388820,,johndoe,gpt-3.5-turbo-instruct,openai,completion,113,65,178,845.01,True\r\n2024-12-13T15:54:36.389048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,188,53,241,1363.178,True\r\n2024-12-13T15:54:41.393015,,johndoe,gpt-3.5-turbo-instruct,openai,completion,253,52,305,723.886,True\r\n2024-12-13T15:54:41.393270,,johndoe,gpt-3.5-turbo-instruct,openai,completion,321,51,372,824.422,True\r\n2024-12-13T15:54:41.393510,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,51,437,1261.083,True\r\n2024-12-13T15:54:41.393715,,johndoe,gpt-3.5-turbo-instruct,openai,completion,448,38,486,848.543,True\r\n2024-12-13T15:54:41.393908,,johndoe,gpt-3.5-turbo-instruct,openai,completion,503,51,554,958.632,True\r\n2024-12-13T15:54:45.643202,,johndoe,gpt-3.5-turbo-instruct,openai,completion,566,37,603,1175.379,True\r\n2024-12-13T15:54:45.643484,,johndoe,gpt-3.5-turbo-instruct,openai,completion,616,48,664,941.267,True\r\n2024-12-13T15:54:45.643651,,johndoe,gpt-3.5-turbo-instruct,openai,completion,679,68,747,1187.947,True\r\n2024-12-13T15:54:45.643809,,johndoe,gpt-3.5-turbo-instruct,openai,completion,761,77,838,1244.805,True\r\n2024-12-13T15:54:45.643985,,johndoe,gpt-3.5-turbo-instruct,openai,completion,845,13,858,653.125,True\r\n2024-12-13T15:56:44.034115,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1598.016,True\r\n2024-12-13T15:56:44.034524,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,67,185,1220.378,True\r\n2024-12-13T15:56:44.035304,,johndoe,gpt-3.5-turbo-instruct,openai,completion,195,52,247,1269.41,True\r\n2024-12-13T15:56:49.038722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,259,45,304,1224.535,True\r\n2024-12-13T15:56:49.039196,,johndoe,gpt-3.5-turbo-instruct,openai,completion,320,46,366,663.07,True\r\n2024-12-13T15:56:49.039481,,johndoe,gpt-3.5-turbo-instruct,openai,completion,380,50,430,841.624,True\r\n2024-12-13T15:56:49.039686,,johndoe,gpt-3.5-turbo-instruct,openai,completion,440,52,492,882.98,True\r\n2024-12-13T15:56:49.039884,,johndoe,gpt-3.5-turbo-instruct,openai,completion,510,51,561,1286.568,True\r\n2024-12-13T15:56:53.184023,,johndoe,gpt-3.5-turbo-instruct,openai,completion,572,34,606,619.318,True\r\n2024-12-13T15:56:53.184225,,johndoe,gpt-3.5-turbo-instruct,openai,completion,620,55,675,759.117,True\r\n2024-12-13T15:56:53.184405,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,65,755,1254.002,True\r\n2024-12-13T15:56:53.184576,,johndoe,gpt-3.5-turbo-instruct,openai,completion,769,45,814,903.524,True\r\n2024-12-13T15:56:53.184772,,johndoe,gpt-3.5-turbo-instruct,openai,completion,821,13,834,927.562,True\r\n2024-12-13T16:01:03.150128,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3580.793,True\r\n2024-12-13T16:01:08.153017,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,49,383,851.584,True\r\n2024-12-13T16:01:08.153434,,johndoe,gpt-3.5-turbo-instruct,openai,completion,393,17,410,613.005,True\r\n2024-12-13T16:01:08.153733,,johndoe,gpt-3.5-turbo-instruct,openai,completion,422,50,472,1076.018,True\r\n2024-12-13T16:01:08.153958,,johndoe,gpt-3.5-turbo-instruct,openai,completion,488,39,527,800.002,True\r\n2024-12-13T16:01:08.154197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,541,41,582,1170.756,True\r\n2024-12-13T16:01:08.154398,,johndoe,gpt-3.5-turbo-instruct,openai,completion,593,36,629,879.814,True\r\n2024-12-13T16:01:13.154035,,johndoe,gpt-3.5-turbo-instruct,openai,completion,647,30,677,853.427,True\r\n2024-12-13T16:01:13.154331,,johndoe,gpt-3.5-turbo-instruct,openai,completion,689,40,729,1046.718,True\r\n2024-12-13T16:01:13.154552,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,59,802,1342.771,True\r\n2024-12-13T16:01:13.154761,,johndoe,gpt-3.5-turbo-instruct,openai,completion,817,59,876,1013.562,True\r\n2024-12-13T16:01:14.065492,,johndoe,gpt-3.5-turbo-instruct,openai,completion,891,87,978,1277.086,True\r\n2024-12-13T16:01:14.065676,,johndoe,gpt-3.5-turbo-instruct,openai,completion,985,12,997,415.173,True\r\n2024-12-13T16:05:37.927351,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1289.456,True\r\n2024-12-13T16:05:37.927745,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,59,177,1284.912,True\r\n2024-12-13T16:05:37.927968,,johndoe,gpt-3.5-turbo-instruct,openai,completion,187,48,235,999.939,True\r\n2024-12-13T16:05:42.930944,,johndoe,gpt-3.5-turbo-instruct,openai,completion,247,63,310,1197.145,True\r\n2024-12-13T16:05:42.931208,,johndoe,gpt-3.5-turbo-instruct,openai,completion,326,47,373,907.648,True\r\n2024-12-13T16:05:42.931418,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,59,445,1144.202,True\r\n2024-12-13T16:05:42.931620,,johndoe,gpt-3.5-turbo-instruct,openai,completion,455,36,491,818.036,True\r\n2024-12-13T16:05:42.931815,,johndoe,gpt-3.5-turbo-instruct,openai,completion,509,39,548,788.682,True\r\n2024-12-13T16:05:46.061357,,johndoe,gpt-3.5-turbo-instruct,openai,completion,560,44,604,864.701,True\r\n2024-12-13T16:05:46.061602,,johndoe,gpt-3.5-turbo-instruct,openai,completion,617,58,675,1005.639,True\r\n2024-12-13T16:05:46.061775,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,39,729,695.417,True\r\n2024-12-13T16:05:46.061938,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,28,771,533.852,True\r\n2024-12-13T16:05:46.062096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,778,18,796,594.581,True\r\n2024-12-13T16:08:26.006275,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1587.014,True\r\n2024-12-13T16:08:26.026457,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,54,181,1117.294,True\r\n2024-12-13T17:15:59.263983,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,59,122,1553.0,True\r\n2024-12-13T17:15:59.264197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,136,64,200,1158.525,True\r\n2024-12-13T17:17:55.930521,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3015.276,True\r\n2024-12-13T17:17:58.810496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,78,412,3854.114,True\r\n2024-12-13T17:18:58.697218,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,56,119,1476.027,True\r\n2024-12-13T17:18:58.697438,,johndoe,gpt-3.5-turbo-instruct,openai,completion,133,69,202,1545.826,True\r\n2024-12-13T17:20:12.666360,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,68,131,1430.69,True\r\n2024-12-13T17:25:59.956272,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,44,107,1073.482,True\r\n2024-12-13T17:25:59.956493,,johndoe,gpt-3.5-turbo-instruct,openai,completion,121,59,180,1473.536,True\r\n2024-12-13T17:28:27.581022,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,2962.375,True\r\n2024-12-13T17:28:27.581254,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,55,389,1200.276,True\r\n2024-12-13T17:29:28.524722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,55,118,1264.661,True\r\n2024-12-13T17:29:28.524954,,johndoe,gpt-3.5-turbo-instruct,openai,completion,132,71,203,879.389,True\r\n2024-12-13T17:29:50.260145,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1377.831,True\r\n2024-12-13T17:29:50.260356,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,50,177,898.52,True\r\n2024-12-13T22:49:31.060431,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,43,106,1207.162,True\r\n2024-12-13T22:49:31.060656,,johndoe,gpt-3.5-turbo-instruct,openai,completion,120,55,175,735.464,True\r\n",
             "datasource": {
-              "type": "yesoreyeram-infinity-datasource",
-              "uid": "infinity"
+              "type": "sqlite-datasource",
+              "uid": "sqlite"
             },
-            "filters": [],
-            "format": "table",
-            "global_query_id": "",
-            "parser": "csv",
+            "queryText": "SELECT \n    AVG(duration_ms) as \"Duration\"\nFROM telemetry;",
+            "queryType": "table",
+            "rawQuery": true,
+            "rawQueryText": "SELECT \n    AVG(duration_ms) as \"Duration\"\nFROM telemetry;",
             "refId": "A",
-            "root_selector": "",
-            "source": "inline",
-            "type": "csv",
-            "url": "file:///Users/hchen/Downloads/token_usage.csv",
-            "url_options": {
-              "data": "",
-              "method": "GET"
-            }
+            "timeColumns": [
+              "time",
+              "ts"
+            ]
           }
         ],
         "title": "Average Request Duration",
@@ -323,8 +270,8 @@
       },
       {
         "datasource": {
-          "type": "yesoreyeram-infinity-datasource",
-          "uid": "ae6uixix76yo0e"
+          "type": "frser-sqlite-datasource",
+          "uid": "fe6x12x41pw5ca"
         },
         "fieldConfig": {
           "defaults": {
@@ -382,61 +329,19 @@
         "pluginVersion": "11.3.1",
         "targets": [
           {
-            "columns": [
-              {
-                "selector": "timestamp",
-                "text": "Time",
-                "type": "timestamp"
-              },
-              {
-                "selector": "user_id",
-                "text": "User",
-                "type": "string"
-              },
-              {
-                "selector": "model",
-                "text": "Model",
-                "type": "string"
-              },
-              {
-                "selector": "prompt_tokens",
-                "text": "Prompt Tokens",
-                "type": "number"
-              },
-              {
-                "selector": "completion_tokens",
-                "text": "Completion Tokens",
-                "type": "number"
-              },
-              {
-                "selector": "total_tokens",
-                "text": "Total Tokens",
-                "type": "number"
-              },
-              {
-                "selector": "duration_ms",
-                "text": "Duration (ms)",
-                "type": "number"
-              }
-            ],
-            "data": "timestamp,transaction_id,user_id,model,provider,request_type,prompt_tokens,completion_tokens,total_tokens,duration_ms,success\r\n2024-12-13T02:49:38.998496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,46,109,1287.963,True\r\n2024-12-13T02:49:38.998876,,johndoe,gpt-3.5-turbo-instruct,openai,completion,123,48,171,796.817,True\r\n2024-12-13T02:49:38.999096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,181,19,200,780.66,True\r\n2024-12-13T02:49:38.999364,,johndoe,gpt-3.5-turbo-instruct,openai,completion,212,49,261,791.312,True\r\n2024-12-13T02:49:44.002187,,johndoe,gpt-3.5-turbo-instruct,openai,completion,277,36,313,733.711,True\r\n2024-12-13T02:49:44.002425,,johndoe,gpt-3.5-turbo-instruct,openai,completion,327,56,383,1310.668,True\r\n2024-12-13T02:49:44.002664,,johndoe,gpt-3.5-turbo-instruct,openai,completion,394,37,431,1030.527,True\r\n2024-12-13T02:49:44.002858,,johndoe,gpt-3.5-turbo-instruct,openai,completion,449,39,488,629.609,True\r\n2024-12-13T02:49:44.003048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,500,59,559,961.222,True\r\n2024-12-13T02:49:47.518906,,johndoe,gpt-3.5-turbo-instruct,openai,completion,573,60,633,864.883,True\r\n2024-12-13T02:49:47.519157,,johndoe,gpt-3.5-turbo-instruct,openai,completion,648,49,697,1268.634,True\r\n2024-12-13T02:49:47.519341,,johndoe,gpt-3.5-turbo-instruct,openai,completion,711,42,753,1010.319,True\r\n2024-12-13T02:49:47.519518,,johndoe,gpt-3.5-turbo-instruct,openai,completion,760,36,796,1037.311,True\r\n2024-12-13T15:54:36.388534,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,36,99,1116.579,True\r\n2024-12-13T15:54:36.388820,,johndoe,gpt-3.5-turbo-instruct,openai,completion,113,65,178,845.01,True\r\n2024-12-13T15:54:36.389048,,johndoe,gpt-3.5-turbo-instruct,openai,completion,188,53,241,1363.178,True\r\n2024-12-13T15:54:41.393015,,johndoe,gpt-3.5-turbo-instruct,openai,completion,253,52,305,723.886,True\r\n2024-12-13T15:54:41.393270,,johndoe,gpt-3.5-turbo-instruct,openai,completion,321,51,372,824.422,True\r\n2024-12-13T15:54:41.393510,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,51,437,1261.083,True\r\n2024-12-13T15:54:41.393715,,johndoe,gpt-3.5-turbo-instruct,openai,completion,448,38,486,848.543,True\r\n2024-12-13T15:54:41.393908,,johndoe,gpt-3.5-turbo-instruct,openai,completion,503,51,554,958.632,True\r\n2024-12-13T15:54:45.643202,,johndoe,gpt-3.5-turbo-instruct,openai,completion,566,37,603,1175.379,True\r\n2024-12-13T15:54:45.643484,,johndoe,gpt-3.5-turbo-instruct,openai,completion,616,48,664,941.267,True\r\n2024-12-13T15:54:45.643651,,johndoe,gpt-3.5-turbo-instruct,openai,completion,679,68,747,1187.947,True\r\n2024-12-13T15:54:45.643809,,johndoe,gpt-3.5-turbo-instruct,openai,completion,761,77,838,1244.805,True\r\n2024-12-13T15:54:45.643985,,johndoe,gpt-3.5-turbo-instruct,openai,completion,845,13,858,653.125,True\r\n2024-12-13T15:56:44.034115,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1598.016,True\r\n2024-12-13T15:56:44.034524,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,67,185,1220.378,True\r\n2024-12-13T15:56:44.035304,,johndoe,gpt-3.5-turbo-instruct,openai,completion,195,52,247,1269.41,True\r\n2024-12-13T15:56:49.038722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,259,45,304,1224.535,True\r\n2024-12-13T15:56:49.039196,,johndoe,gpt-3.5-turbo-instruct,openai,completion,320,46,366,663.07,True\r\n2024-12-13T15:56:49.039481,,johndoe,gpt-3.5-turbo-instruct,openai,completion,380,50,430,841.624,True\r\n2024-12-13T15:56:49.039686,,johndoe,gpt-3.5-turbo-instruct,openai,completion,440,52,492,882.98,True\r\n2024-12-13T15:56:49.039884,,johndoe,gpt-3.5-turbo-instruct,openai,completion,510,51,561,1286.568,True\r\n2024-12-13T15:56:53.184023,,johndoe,gpt-3.5-turbo-instruct,openai,completion,572,34,606,619.318,True\r\n2024-12-13T15:56:53.184225,,johndoe,gpt-3.5-turbo-instruct,openai,completion,620,55,675,759.117,True\r\n2024-12-13T15:56:53.184405,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,65,755,1254.002,True\r\n2024-12-13T15:56:53.184576,,johndoe,gpt-3.5-turbo-instruct,openai,completion,769,45,814,903.524,True\r\n2024-12-13T15:56:53.184772,,johndoe,gpt-3.5-turbo-instruct,openai,completion,821,13,834,927.562,True\r\n2024-12-13T16:01:03.150128,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3580.793,True\r\n2024-12-13T16:01:08.153017,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,49,383,851.584,True\r\n2024-12-13T16:01:08.153434,,johndoe,gpt-3.5-turbo-instruct,openai,completion,393,17,410,613.005,True\r\n2024-12-13T16:01:08.153733,,johndoe,gpt-3.5-turbo-instruct,openai,completion,422,50,472,1076.018,True\r\n2024-12-13T16:01:08.153958,,johndoe,gpt-3.5-turbo-instruct,openai,completion,488,39,527,800.002,True\r\n2024-12-13T16:01:08.154197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,541,41,582,1170.756,True\r\n2024-12-13T16:01:08.154398,,johndoe,gpt-3.5-turbo-instruct,openai,completion,593,36,629,879.814,True\r\n2024-12-13T16:01:13.154035,,johndoe,gpt-3.5-turbo-instruct,openai,completion,647,30,677,853.427,True\r\n2024-12-13T16:01:13.154331,,johndoe,gpt-3.5-turbo-instruct,openai,completion,689,40,729,1046.718,True\r\n2024-12-13T16:01:13.154552,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,59,802,1342.771,True\r\n2024-12-13T16:01:13.154761,,johndoe,gpt-3.5-turbo-instruct,openai,completion,817,59,876,1013.562,True\r\n2024-12-13T16:01:14.065492,,johndoe,gpt-3.5-turbo-instruct,openai,completion,891,87,978,1277.086,True\r\n2024-12-13T16:01:14.065676,,johndoe,gpt-3.5-turbo-instruct,openai,completion,985,12,997,415.173,True\r\n2024-12-13T16:05:37.927351,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,41,104,1289.456,True\r\n2024-12-13T16:05:37.927745,,johndoe,gpt-3.5-turbo-instruct,openai,completion,118,59,177,1284.912,True\r\n2024-12-13T16:05:37.927968,,johndoe,gpt-3.5-turbo-instruct,openai,completion,187,48,235,999.939,True\r\n2024-12-13T16:05:42.930944,,johndoe,gpt-3.5-turbo-instruct,openai,completion,247,63,310,1197.145,True\r\n2024-12-13T16:05:42.931208,,johndoe,gpt-3.5-turbo-instruct,openai,completion,326,47,373,907.648,True\r\n2024-12-13T16:05:42.931418,,johndoe,gpt-3.5-turbo-instruct,openai,completion,386,59,445,1144.202,True\r\n2024-12-13T16:05:42.931620,,johndoe,gpt-3.5-turbo-instruct,openai,completion,455,36,491,818.036,True\r\n2024-12-13T16:05:42.931815,,johndoe,gpt-3.5-turbo-instruct,openai,completion,509,39,548,788.682,True\r\n2024-12-13T16:05:46.061357,,johndoe,gpt-3.5-turbo-instruct,openai,completion,560,44,604,864.701,True\r\n2024-12-13T16:05:46.061602,,johndoe,gpt-3.5-turbo-instruct,openai,completion,617,58,675,1005.639,True\r\n2024-12-13T16:05:46.061775,,johndoe,gpt-3.5-turbo-instruct,openai,completion,690,39,729,695.417,True\r\n2024-12-13T16:05:46.061938,,johndoe,gpt-3.5-turbo-instruct,openai,completion,743,28,771,533.852,True\r\n2024-12-13T16:05:46.062096,,johndoe,gpt-3.5-turbo-instruct,openai,completion,778,18,796,594.581,True\r\n2024-12-13T16:08:26.006275,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1587.014,True\r\n2024-12-13T16:08:26.026457,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,54,181,1117.294,True\r\n2024-12-13T17:15:59.263983,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,59,122,1553.0,True\r\n2024-12-13T17:15:59.264197,,johndoe,gpt-3.5-turbo-instruct,openai,completion,136,64,200,1158.525,True\r\n2024-12-13T17:17:55.930521,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,3015.276,True\r\n2024-12-13T17:17:58.810496,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,78,412,3854.114,True\r\n2024-12-13T17:18:58.697218,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,56,119,1476.027,True\r\n2024-12-13T17:18:58.697438,,johndoe,gpt-3.5-turbo-instruct,openai,completion,133,69,202,1545.826,True\r\n2024-12-13T17:20:12.666360,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,68,131,1430.69,True\r\n2024-12-13T17:25:59.956272,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,44,107,1073.482,True\r\n2024-12-13T17:25:59.956493,,johndoe,gpt-3.5-turbo-instruct,openai,completion,121,59,180,1473.536,True\r\n2024-12-13T17:28:27.581022,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,256,319,2962.375,True\r\n2024-12-13T17:28:27.581254,,johndoe,gpt-3.5-turbo-instruct,openai,completion,334,55,389,1200.276,True\r\n2024-12-13T17:29:28.524722,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,55,118,1264.661,True\r\n2024-12-13T17:29:28.524954,,johndoe,gpt-3.5-turbo-instruct,openai,completion,132,71,203,879.389,True\r\n2024-12-13T17:29:50.260145,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,50,113,1377.831,True\r\n2024-12-13T17:29:50.260356,,johndoe,gpt-3.5-turbo-instruct,openai,completion,127,50,177,898.52,True\r\n2024-12-13T22:49:31.060431,,johndoe,gpt-3.5-turbo-instruct,openai,completion,63,43,106,1207.162,True\r\n2024-12-13T22:49:31.060656,,johndoe,gpt-3.5-turbo-instruct,openai,completion,120,55,175,735.464,True\r\n",
             "datasource": {
-              "type": "yesoreyeram-infinity-datasource",
-              "uid": "infinity"
+              "type": "sqlite-datasource",
+              "uid": "sqlite"
             },
-            "filters": [],
-            "format": "table",
-            "global_query_id": "",
-            "parser": "csv",
+            "queryText": "SELECT \n    user_id as \"User\",\n    SUM(prompt_tokens) as \"Prompt Tokens\",\n    SUM(completion_tokens) as \"Completion Tokens\",\n    SUM(total_tokens) as \"Total Tokens\",\n    COUNT(*) as \"Total Requests\",\n    AVG(duration_ms) as \"Avg Duration (ms)\"\nFROM telemetry\nGROUP BY user_id\nORDER BY \"Total Tokens\" DESC;",
+            "queryType": "table",
+            "rawQuery": true,
+            "rawQueryText": "SELECT \n    user_id as \"User\",\n    SUM(prompt_tokens) as \"Prompt Tokens\",\n    SUM(completion_tokens) as \"Completion Tokens\",\n    SUM(total_tokens) as \"Total Tokens\",\n    COUNT(*) as \"Total Requests\",\n    AVG(duration_ms) as \"Avg Duration (ms)\"\nFROM telemetry\nGROUP BY user_id\nORDER BY \"Total Tokens\" DESC;",
             "refId": "A",
-            "root_selector": "",
-            "source": "inline",
-            "type": "csv",
-            "url": "file:///Users/hchen/Downloads/token_usage.csv",
-            "url_options": {
-              "data": "",
-              "method": "GET"
-            }
+            "timeColumns": [
+              "time",
+              "ts"
+            ]
           }
         ],
         "title": "Request Details",
@@ -454,13 +359,13 @@
       "list": []
     },
     "time": {
-      "from": "now-6h",
+      "from": "now-30m",
       "to": "now"
     },
     "timepicker": {},
-    "timezone": "",
+    "timezone": "browser",
     "title": "LLM Token Usage Dashboard",
     "uid": "llm-token-usage",
-    "version": 6,
+    "version": 7,
     "weekStart": ""
   }
