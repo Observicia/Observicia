@@ -64,22 +64,24 @@ format: lint
 	$(PYTHON) -m black .
 	$(PYTHON) -m isort .
 
-check-openai-key:
-	@if [ -z "$(OPENAI_API_KEY)" ]; then \
-		echo "Error: OPENAI_API_KEY environment variable is not set"; \
-		exit 1; \
-	fi
-
-run-chat: check-openai-key install
+run-chat: install
 	@echo "Running sample chat application in test mode..."
-	cd examples/simple-chat && OPENAI_API_KEY=$(OPENAI_API_KEY) $(PYTHON) app.py --test
+	cd examples/simple-chat && $(PYTHON) app.py --test
 
-run-chat-interactive: check-openai-key install
+run-chat-interactive: install
 	@echo "Running sample chat application in interactive mode..."
-	cd examples/simple-chat && OPENAI_API_KEY=$(OPENAI_API_KEY) $(PYTHON) app.py
+	cd examples/simple-chat && $(PYTHON) app.py
 
-run-rag: check-openai-key install
+run-rag: install
 	@echo "Running sample RAG application..."
-	cd examples/rag-app && OPENAI_API_KEY=$(OPENAI_API_KEY) $(PYTHON) app.py
+	cd examples/rag-app && $(PYTHON) app.py
 
-run-samples: run-chat run-rag
+run-langchain: install
+	@echo "Running sample langchain application..."
+	cd examples/langchain-chat && $(PYTHON) app.py
+
+run-watsonx: install
+	@echo "Running sample watsonx application..."
+	cd examples/watsonx-generate && $(PYTHON) app.py
+
+run-samples: run-chat run-rag run-langchain run-watsonx
