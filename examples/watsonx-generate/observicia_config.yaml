@@ -1,0 +1,19 @@
+service_name: watsonx-app
+otel_endpoint: null
+opa_endpoint: http://opa-server:8181/
+policies:
+logging:
+  file: "observicia.log"
+  sqlite:
+    enabled: true
+    database: "observicia.db"
+  telemetry:
+    enabled: true
+    format: "json"
+  messages:
+    enabled: true
+    level: "INFO"
+  chat:
+    enabled: true
+    level: "both"
+    file: "chat.json"

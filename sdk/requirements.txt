@@ -10,3 +10,4 @@ openai>=1.55.3
 pyyaml>=6.0
 redis>=5.2.0
 ollama>=0.4.4
+ibm_watsonx_ai>=1.1.26
