@@ -11,7 +11,7 @@ from typing import List, Optional, Dict, Any
 import os
 import yaml
 
-__version__ = "0.1.10"
+__version__ = "0.1.11"
 
 
 def init() -> None:
