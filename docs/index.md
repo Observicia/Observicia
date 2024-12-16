@@ -218,6 +218,8 @@ context = get_current_context()
 
 The SDK currently supports the following providers:
 - OpenAI
+- Ollama
+- WatsonX
 - (more to come)
 
 Each provider can be patched to add observability features to their APIs.
