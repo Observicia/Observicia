@@ -41,8 +41,12 @@ jobs:
     - name: Test Example apps
       run: |
         # Run with a timeout to prevent hanging
-        timeout 60s make run-chat || echo "Chat sample timeout (expected)"
-        timeout 60s make run-rag || echo "RAG sample timeout (expected)"
+        timeout 360s make run-samples
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        WATSONX_API: ${{ secrets.WATSONX_API }}
+        WATSONX_KEY: ${{ secrets.WATSONX_KEY }}
+        WATSONX_PROJECT_ID : ${{ secrets.WATSONX_PROJECT_ID }}
 
     - name: Set minimum commits
       run: |
