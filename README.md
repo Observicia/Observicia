@@ -6,6 +6,8 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-enabled-blue)](https://opentelemetry.io/)
 [![OPA](https://img.shields.io/badge/OPA-integrated-blue)](https://www.openpolicyagent.org/)
+[![PyPI version](https://badge.fury.io/py/observicia.svg)](https://badge.fury.io/py/observicia)
+[![PyPI Status](https://img.shields.io/pypi/status/observicia.svg)](https://pypi.python.org/pypi/observicia/)
 
 ## Features
 
