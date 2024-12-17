@@ -3,7 +3,7 @@ from functools import wraps
 from inspect import getfullargspec
 
 from ..core.context_manager import ObservabilityContext
-from ..core.token_tracker import TokenTracker
+from ..core.token_tracker import TokenTracker, TokenUsage
 from ..utils.tracing_helpers import start_llm_span
 from ..utils.token_helpers import count_text_tokens, update_token_usage
 from ..utils.policy_helpers import enforce_policies
@@ -154,6 +154,7 @@ class OllamaPatcher:
                     model = actual_kwargs.get('model', '')
                     prompt_tokens = count_text_tokens(prompt, model)
                     span.set_attribute("prompt.tokens", prompt_tokens)
+                    print(f"Prompt tokens: {prompt_tokens}")
 
                     if actual_kwargs.get('stream', False):
                         return handle_stream(func,
@@ -176,12 +177,12 @@ class OllamaPatcher:
                         "model": model
                     })
 
-                    update_token_usage(
-                        self._token_tracker, "ollama", {
-                            "prompt_tokens": prompt_tokens,
-                            "completion_tokens": completion_tokens,
-                            "total_tokens": prompt_tokens + completion_tokens
-                        })
+                    usage = TokenUsage(prompt_tokens=prompt_tokens,
+                                       completion_tokens=completion_tokens,
+                                       total_tokens=prompt_tokens +
+                                       completion_tokens)
+
+                    update_token_usage(self._token_tracker, "ollama", usage)
 
                     if self._context and self._context.policy_engine:
                         enforce_policies(self._context,
@@ -250,10 +251,12 @@ class OllamaPatcher:
                         "model": model
                     })
 
-                    self._token_tracker.update(
-                        "ollama",
-                        prompt_tokens=prompt_tokens,
-                        completion_tokens=completion_tokens)
+                    usage = TokenUsage(prompt_tokens=prompt_tokens,
+                                       completion_tokens=completion_tokens,
+                                       total_tokens=prompt_tokens +
+                                       completion_tokens)
+
+                    update_token_usage(self._token_tracker, "ollama", usage)
 
                     if self._context and self._context.policy_engine:
                         enforce_policies(self._context,
@@ -309,10 +312,12 @@ class OllamaPatcher:
                         "model": model
                     })
 
-                    self._token_tracker.update(
-                        "ollama",
-                        prompt_tokens=prompt_tokens,
-                        completion_tokens=completion_tokens)
+                    usage = TokenUsage(prompt_tokens=prompt_tokens,
+                                       completion_tokens=completion_tokens,
+                                       total_tokens=prompt_tokens +
+                                       completion_tokens)
+
+                    update_token_usage(self._token_tracker, "ollama", usage)
 
                     if self._context and self._context.policy_engine:
                         enforce_policies(self._context,
@@ -372,10 +377,12 @@ class OllamaPatcher:
                         "model": model
                     })
 
-                    self._token_tracker.update(
-                        "ollama",
-                        prompt_tokens=prompt_tokens,
-                        completion_tokens=completion_tokens)
+                    usage = TokenUsage(prompt_tokens=prompt_tokens,
+                                       completion_tokens=completion_tokens,
+                                       total_tokens=prompt_tokens +
+                                       completion_tokens)
+
+                    update_token_usage(self._token_tracker, "ollama", usage)
 
                     if self._context and self._context.policy_engine:
                         enforce_policies(self._context,

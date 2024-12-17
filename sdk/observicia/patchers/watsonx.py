@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, Generator, Union, Literal
 from ibm_watsonx_ai.foundation_models import ModelInference
 from ibm_watsonx_ai.foundation_models.schema import TextGenParameters, TextChatParameters
 
-from ..core.token_tracker import TokenTracker
+from ..core.token_tracker import TokenTracker, TokenUsage
 from ..core.context_manager import ObservabilityContext
 from ..utils.tracing_helpers import start_llm_span, record_token_usage
 from ..utils.token_helpers import count_prompt_tokens, count_text_tokens, update_token_usage
@@ -60,28 +60,22 @@ class WatsonxPatcher:
 
                     # Extract and record token usage from response
                     if isinstance(response, dict) and "results" in response:
-                        input_token_count = response.get(
-                            "input_token_count", 0)
-                        generated_token_count = len(response["results"][0].get(
+                        prompt_tokens = response.get("prompt_tokens", 0)
+                        completion_tokens = len(response["results"][0].get(
                             "generated_text", "").split())
 
-                        span.set_attribute("prompt.tokens", input_token_count)
+                        span.set_attribute("prompt.tokens", prompt_tokens)
                         span.set_attribute("completion.tokens",
-                                           generated_token_count)
-                        span.set_attribute(
-                            "total.tokens",
-                            input_token_count + generated_token_count)
+                                           completion_tokens)
+                        span.set_attribute("total.tokens",
+                                           prompt_tokens + completion_tokens)
 
-                        if token_tracker:
-                            token_tracker.add_usage(
-                                "watsonx", {
-                                    "prompt_tokens":
-                                    input_token_count,
-                                    "completion_tokens":
-                                    generated_token_count,
-                                    "total_tokens":
-                                    input_token_count + generated_token_count
-                                })
+                    usage = TokenUsage(prompt_tokens=prompt_tokens,
+                                       completion_tokens=completion_tokens,
+                                       total_tokens=prompt_tokens +
+                                       completion_tokens)
+
+                    update_token_usage(self._token_tracker, "watsonx", usage)
 
                     return response
 
@@ -126,28 +120,22 @@ class WatsonxPatcher:
                     # Handle token tracking if raw_response is True
                     if raw_response and isinstance(
                             response, dict) and "results" in response:
-                        input_token_count = response.get(
-                            "input_token_count", 0)
-                        generated_token_count = len(response["results"][0].get(
+                        prompt_tokens = response.get("prompt_tokens", 0)
+                        completion_tokens = len(response["results"][0].get(
                             "generated_text", "").split())
 
-                        span.set_attribute("prompt.tokens", input_token_count)
+                        span.set_attribute("prompt.tokens", prompt_tokens)
                         span.set_attribute("completion.tokens",
-                                           generated_token_count)
-                        span.set_attribute(
-                            "total.tokens",
-                            input_token_count + generated_token_count)
+                                           completion_tokens)
+                        span.set_attribute("total.tokens",
+                                           prompt_tokens + completion_tokens)
 
-                        if token_tracker:
-                            update_token_usage(
-                                self._token_tracker, "watsonx", {
-                                    "prompt_tokens":
-                                    input_token_count,
-                                    "completion_tokens":
-                                    generated_token_count,
-                                    "total_tokens":
-                                    input_token_count + generated_token_count
-                                })
+                    usage = TokenUsage(prompt_tokens=prompt_tokens,
+                                       completion_tokens=completion_tokens,
+                                       total_tokens=prompt_tokens +
+                                       completion_tokens)
+
+                    update_token_usage(self._token_tracker, "watsonx", usage)
 
                     return response
 
@@ -185,29 +173,25 @@ class WatsonxPatcher:
 
                     # Extract and record token usage
                     if "choices" in response:
-                        message_tokens = sum(
+                        prompt_tokens = sum(
                             len(m.get("content", "").split())
                             for m in messages)
                         completion_tokens = len(
                             response["choices"][0]["message"].get(
                                 "content", "").split())
 
-                        span.set_attribute("prompt.tokens", message_tokens)
+                        span.set_attribute("prompt.tokens", prompt_tokens)
                         span.set_attribute("completion.tokens",
                                            completion_tokens)
                         span.set_attribute("total.tokens",
-                                           message_tokens + completion_tokens)
+                                           prompt_tokens + completion_tokens)
 
-                        if token_tracker:
-                            update_token_usage(
-                                self._token_tracker, "watsonx", {
-                                    "prompt_tokens":
-                                    message_tokens,
-                                    "completion_tokens":
-                                    completion_tokens,
-                                    "total_tokens":
-                                    message_tokens + completion_tokens
-                                })
+                    usage = TokenUsage(prompt_tokens=prompt_tokens,
+                                       completion_tokens=completion_tokens,
+                                       total_tokens=prompt_tokens +
+                                       completion_tokens)
+
+                    update_token_usage(self._token_tracker, "watsonx", usage)
 
                     return response
 
