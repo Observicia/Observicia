@@ -212,6 +212,10 @@ flowchart TB
 
 The SDK includes three example applications demonstrating different use cases:
 
+## Example Applications
+
+The SDK includes the following example applications demonstrating different use cases:
+
 1. **Simple Chat Application** ([examples/simple-chat](examples/simple-chat))
    - Basic chat interface using OpenAI
    - Demonstrates token tracking and tracing
@@ -228,6 +232,21 @@ The SDK includes three example applications demonstrating different use cases:
    - Integration with LangChain framework
    - Shows conversation chain tracking
    - Token tracking across abstractions
+
+4. **WatsonX Generation** ([examples/watsonx-generate](examples/watsonx-generate))
+   - Integration with IBM WatsonX.ai Foundation Models
+   - Demonstrates model inference with parameters
+   - Shows token tracking for WatsonX models
+   - Includes chat and generation examples
+   - Policy enforcement for enterprise use cases
+
+5. **Ollama Generation** ([examples/ollama-generate](examples/ollama-generate))
+   - Integration with local Ollama models
+   - Shows local model deployment monitoring
+   - Demonstrates both chat and generation modes
+   - Includes embedding tracking
+   - Token usage tracking for local models
+   - Support for multiple model formats
 
 ## Deployment
 
