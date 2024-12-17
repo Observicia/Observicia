@@ -37,15 +37,13 @@ def create_mock_response(content: str, is_chat: bool = False):
     if is_chat:
         return {
             'model': 'llama2',
+            'created_at': '2024-12-17T12:00:00Z',
             'message': {
                 'role': 'assistant',
                 'content': content,
-            },
+            }
         }
-    return {
-        'model': 'llama2',
-        'response': content,
-    }
+    return {'model': 'llama2', 'response': content}
 
 
 def test_patcher_initialization(patcher):
@@ -180,7 +178,9 @@ async def test_async_error_handling(patcher, monkeypatch):
 
 def test_token_tracking(patcher, monkeypatch):
     """Test token tracking functionality."""
-    mock_generate = Mock(return_value=create_mock_response("Test response"))
+    # Create a mock response with token counts
+    mock_response = create_mock_response("Test response")
+    mock_generate = Mock(return_value=mock_response)
     monkeypatch.setattr(ollama, 'generate', mock_generate)
 
     with patcher:
@@ -188,6 +188,7 @@ def test_token_tracking(patcher, monkeypatch):
 
     # Check if tokens were tracked
     usage = patcher._token_tracker.get_usage('ollama')
+
     assert usage['prompt_tokens'] > 0
     assert usage['completion_tokens'] > 0
     assert usage['total_tokens'] > 0
@@ -196,8 +197,9 @@ def test_token_tracking(patcher, monkeypatch):
 @pytest.mark.asyncio
 async def test_async_token_tracking(patcher, monkeypatch):
     """Test token tracking in async operations."""
-    mock_generate = AsyncMock(
-        return_value=create_mock_response("Test response"))
+    # Create a mock response with token counts
+    mock_response = create_mock_response("Test response")
+    mock_generate = AsyncMock(return_value=mock_response)
     monkeypatch.setattr(ollama.AsyncClient, 'generate', mock_generate)
 
     with patcher:
@@ -206,6 +208,8 @@ async def test_async_token_tracking(patcher, monkeypatch):
 
     # Check if tokens were tracked
     usage = patcher._token_tracker.get_usage('ollama')
+    print(usage)
+
     assert usage['prompt_tokens'] > 0
     assert usage['completion_tokens'] > 0
     assert usage['total_tokens'] > 0
