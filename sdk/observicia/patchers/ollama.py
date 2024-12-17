@@ -143,7 +143,10 @@ class OllamaPatcher:
             else:
                 actual_kwargs.update(dict(zip(['model', 'prompt'], args)))
 
-            with start_llm_span("ollama.generate", actual_kwargs) as span:
+            with start_llm_span("ollama.generate", {
+                    'model': actual_kwargs.get('model', ''),
+                    'provider': 'ollama'
+            }) as span:
                 self.logger.info("Starting generate request",
                                  extra={"model": actual_kwargs.get('model')})
                 try:
@@ -173,10 +176,12 @@ class OllamaPatcher:
                         "model": model
                     })
 
-                    self._token_tracker.update(
-                        "ollama",
-                        prompt_tokens=prompt_tokens,
-                        completion_tokens=completion_tokens)
+                    update_token_usage(
+                        self._token_tracker, "ollama", {
+                            "prompt_tokens": prompt_tokens,
+                            "completion_tokens": completion_tokens,
+                            "total_tokens": prompt_tokens + completion_tokens
+                        })
 
                     if self._context and self._context.policy_engine:
                         enforce_policies(self._context,
@@ -398,7 +403,7 @@ class OllamaPatcher:
             with start_llm_span("ollama.embed", kwargs) as span:
                 try:
                     input_tokens = count_text_tokens(input, model)
-                    span.set_attribute("input.tokens", input_tokens)
+                    span.set_attribute("prompt.tokens", input_tokens)
 
                     response = func(client_self,
                                     model=model,
@@ -434,7 +439,7 @@ class OllamaPatcher:
             with start_llm_span("ollama.embed.async", kwargs) as span:
                 try:
                     input_tokens = count_text_tokens(input, model)
-                    span.set_attribute("input.tokens", input_tokens)
+                    span.set_attribute("prompt.tokens", input_tokens)
 
                     response = await func(client_self,
                                           model=model,
