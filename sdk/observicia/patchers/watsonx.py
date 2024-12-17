@@ -43,8 +43,10 @@ class WatsonxPatcher:
             async_mode: bool = False,
             validate_prompt_variables: bool = True,
         ) -> Union[dict, list[dict], Generator]:
-            with start_llm_span("watsonx.generate",
-                                {"model": model_self.model_id}) as span:
+            with start_llm_span("watsonx.generate", {
+                    "model": model_self.model_id,
+                    "provider": "watsonx-ai"
+            }) as span:
                 logger.info("Starting text generation request",
                             extra={"model": model_self.model_id})
                 try:
@@ -63,7 +65,7 @@ class WatsonxPatcher:
                         generated_token_count = len(response["results"][0].get(
                             "generated_text", "").split())
 
-                        span.set_attribute("input.tokens", input_token_count)
+                        span.set_attribute("prompt.tokens", input_token_count)
                         span.set_attribute("completion.tokens",
                                            generated_token_count)
                         span.set_attribute(
@@ -106,8 +108,10 @@ class WatsonxPatcher:
             concurrency_limit: int = 10,
             validate_prompt_variables: bool = True,
         ) -> Union[str, list, dict]:
-            with start_llm_span("watsonx.generate_text",
-                                {"model": model_self.model_id}) as span:
+            with start_llm_span("watsonx.generate_text", {
+                    "model": model_self.model_id,
+                    "provider": "watsonx-ai"
+            }) as span:
                 logger.info("Starting text generation request",
                             extra={"model": model_self.model_id})
                 try:
@@ -127,7 +131,7 @@ class WatsonxPatcher:
                         generated_token_count = len(response["results"][0].get(
                             "generated_text", "").split())
 
-                        span.set_attribute("input.tokens", input_token_count)
+                        span.set_attribute("prompt.tokens", input_token_count)
                         span.set_attribute("completion.tokens",
                                            generated_token_count)
                         span.set_attribute(
@@ -135,8 +139,8 @@ class WatsonxPatcher:
                             input_token_count + generated_token_count)
 
                         if token_tracker:
-                            token_tracker.add_usage(
-                                "watsonx", {
+                            update_token_usage(
+                                self._token_tracker, "watsonx", {
                                     "prompt_tokens":
                                     input_token_count,
                                     "completion_tokens":
@@ -167,8 +171,10 @@ class WatsonxPatcher:
             tool_choice: Optional[dict] = None,
             tool_choice_option: Optional[Literal["none", "auto"]] = None,
         ) -> dict:
-            with start_llm_span("watsonx.chat",
-                                {"model": model_self.model_id}) as span:
+            with start_llm_span("watsonx.chat", {
+                    "model": model_self.model_id,
+                    "provider": "watsonx-ai"
+            }) as span:
                 logger.info("Starting chat request",
                             extra={"model": model_self.model_id})
                 try:
@@ -186,7 +192,7 @@ class WatsonxPatcher:
                             response["choices"][0]["message"].get(
                                 "content", "").split())
 
-                        span.set_attribute("input.tokens", message_tokens)
+                        span.set_attribute("prompt.tokens", message_tokens)
                         span.set_attribute("completion.tokens",
                                            completion_tokens)
                         span.set_attribute("total.tokens",

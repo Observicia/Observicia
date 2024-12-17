@@ -14,7 +14,7 @@ def start_llm_span(name: str, attributes: Dict[str, Any]) -> Span:
     # Combine base attributes with LLM-specific attributes
     span_attributes = {
         "service.name": context._service_name,
-        "llm.provider": "openai",
+        "llm.provider": attributes.get('provider', 'openai'),
         "llm.model": attributes.get('model', 'unknown'),
         "llm.request.type": name.split('.')[-1]
     }

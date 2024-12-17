@@ -82,13 +82,16 @@ class SQLiteSpanExporter(SpanExporter):
 
     def export(self, spans: list[ReadableSpan]) -> None:
         """Export the spans to SQLite database."""
+        print(f"Exporting {len(spans)} spans to SQLite")
         try:
             with sqlite3.connect(self.database_path) as conn:
                 cursor = conn.cursor()
 
                 for span in spans:
+                    print(f"Exporting span: {span.name}")
+                    print(f"Attributes: {span.attributes}")
                     # Only process completion spans with token data
-                    if 'completion' in span.name and 'prompt.tokens' in span.attributes:
+                    if 'prompt.tokens' in span.attributes:
                         span_data = self._extract_span_data(span)
 
                         cursor.execute(
