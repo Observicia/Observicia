@@ -8,6 +8,12 @@ Observicia is a Cloud Native observability and policy control SDK for LLM applic
 [![OPA](https://img.shields.io/badge/OPA-integrated-blue)](https://www.openpolicyagent.org/)
 [![PyPI version](https://badge.fury.io/py/observicia.svg)](https://badge.fury.io/py/observicia)
 [![PyPI Status](https://img.shields.io/pypi/status/observicia.svg)](https://pypi.python.org/pypi/observicia/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-Supported-74aa9c)](https://openai.com)
+[![WatsonX](https://img.shields.io/badge/WatsonX-Supported-be95ff)](https://www.ibm.com/watsonx)
+[![LangChain](https://img.shields.io/badge/LangChain-Supported-2dd4bf)](https://langchain.com)
+[![Redis](https://img.shields.io/badge/Redis-Supported-dc382d)](https://redis.io)
+[![SQLite](https://img.shields.io/badge/SQLite-Supported-003b57)](https://www.sqlite.org)
+[![Grafana](https://img.shields.io/badge/Grafana-Dashboard-f46800)](https://grafana.com)
 
 ## Features
 
