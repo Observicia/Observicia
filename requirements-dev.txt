@@ -13,3 +13,9 @@ build
 wheel
 faiss-cpu
 sentence-transformers
+langchain
+langchain-community
+langchain-core
+langchain-ibm
+langchain-openai
+langchain-text-splitters
