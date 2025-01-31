@@ -15,23 +15,17 @@ spec:
     spec:
       containers:
       - name: jaeger
-        image: jaegertracing/all-in-one:latest
+        image: jaegertracing/jaeger:2.2.0
         ports:
-        - containerPort: 5775
-          protocol: UDP
-        - containerPort: 6831
-          protocol: UDP
-        - containerPort: 6832
-          protocol: UDP
-        - containerPort: 5778
+        - containerPort: 4317  # OTLP gRPC
           protocol: TCP
-        - containerPort: 16686
+        - containerPort: 4318  # OTLP HTTP
           protocol: TCP
-        - containerPort: 14250
+        - containerPort: 9411  # Zipkin
           protocol: TCP
-        - containerPort: 14268
+        - containerPort: 5778  # serve configs
           protocol: TCP
-        - containerPort: 14269
+        - containerPort: 16686 # serve UI
           protocol: TCP
         env:
         - name: COLLECTOR_ZIPKIN_HOST_PORT
@@ -46,14 +40,18 @@ metadata:
   namespace: observability
 spec:
   ports:
-  - name: agent-compact
-    port: 6831
-    protocol: UDP
-    targetPort: 6831
-  - name: agent-binary
-    port: 6832
-    protocol: UDP
-    targetPort: 6832
+  - name: otlp-grpc
+    port: 4317
+    protocol: TCP
+    targetPort: 4317
+  - name: otlp-http
+    port: 4318
+    protocol: TCP
+    targetPort: 4318
+  - name: collector-zipkin
+    port: 9411
+    protocol: TCP
+    targetPort: 9411
   - name: agent-configs
     port: 5778
     protocol: TCP
@@ -62,17 +60,5 @@ spec:
     port: 16686
     protocol: TCP
     targetPort: 16686
-  - name: collector-grpc
-    port: 14250
-    protocol: TCP
-    targetPort: 14250
-  - name: collector-http
-    port: 14268
-    protocol: TCP
-    targetPort: 14268
-  - name: collector-zipkin
-    port: 9411
-    protocol: TCP
-    targetPort: 9411
   selector:
     app: jaeger

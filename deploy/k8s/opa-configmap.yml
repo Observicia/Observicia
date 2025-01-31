@@ -9,12 +9,12 @@ data:
     
     default allow = true
     
-    violation[msg] {
+    violation[msg] if {
       input.risk_level == "critical"
       msg := "Critical risk level detected"
     }
     
-    violation[msg] {
+    violation[msg] if {
       input.token_count > 1000
       msg := "Token limit exceeded"
     }
