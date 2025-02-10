@@ -52,6 +52,10 @@ class WatsonxBackend:
     def chat(self, messages: List[dict]) -> dict:
         """Use chat interface if supported by model"""
         return self.model.chat(messages)
+    
+    def chat_stream(self, messages: List[dict]) -> Optional[dict]:
+        """Use chat interface with streaming if supported by model"""
+        return self.model.chat_stream(messages)
 
 
 def test_chat():
@@ -71,6 +75,10 @@ def test_chat():
     ]
 
     response = backend.chat(messages)
+    print(response)
+    # Test chat with streaming if supported
+    print("\nTesting chat with streaming:")
+    response = backend.chat_stream(messages)
     print(response)
 
 
