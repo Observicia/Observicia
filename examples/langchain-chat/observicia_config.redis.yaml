@@ -12,7 +12,8 @@ logging:
       host: "localhost"
       port: 6379
       db: 0
-      password: null
+      username: "${REDIS_USERNAME}"
+      password: "${REDIS_PASSWORD}"
       key_prefix: "observicia:telemetry:"
       retention_hours: 24
     messages:

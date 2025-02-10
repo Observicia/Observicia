@@ -12,7 +12,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 from .policy_engine import PolicyEngine, PolicyResult, Policy
 from ..utils.logging import FileSpanExporter, ObserviciaLogger
 from ..utils.exporter import SQLiteSpanExporter, RedisSpanExporter
-
+from ..utils.config_helpers import process_redis_config
 
 @dataclass
 class Transaction:
@@ -144,15 +144,19 @@ class ContextManager:
         redis_config = self._logging_config.get("telemetry",
                                                 {}).get("redis", {})
         if redis_config.get("enabled", False):
+            # Process Redis config to handle environment variables
+            processed_redis_config = process_redis_config(redis_config)
             redis_processor = BatchSpanProcessor(
                 RedisSpanExporter(
-                    host=redis_config.get("host", "localhost"),
-                    port=redis_config.get("port", 6379),
-                    db=redis_config.get("db", 0),
-                    password=redis_config.get("password"),
-                    key_prefix=redis_config.get("key_prefix",
-                                                "observicia:telemetry:"),
-                    retention_hours=redis_config.get("retention_hours", 24)))
+                    host=processed_redis_config.get("host", "localhost"),
+                    port=processed_redis_config.get("port", 6379),
+                    db=processed_redis_config.get("db", 0),
+                    username=processed_redis_config.get("username"),
+                    password=processed_redis_config.get("password"),
+                    key_prefix=processed_redis_config.get("key_prefix", "observicia:telemetry:"),
+                    retention_hours=processed_redis_config.get("retention_hours", 24)
+                )
+            )
             provider.add_span_processor(redis_processor)
         trace.set_tracer_provider(provider)
         self._tracer = trace.get_tracer(service_name)
