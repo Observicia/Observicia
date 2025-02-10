@@ -201,6 +201,67 @@ class WatsonxPatcher:
 
         return wrapper
 
+    def _wrap_chat_stream(self, func: Any) -> Any:
+        """Wrap chat_stream with tracing and token tracking."""
+        @wraps(func)
+        async def wrapper(self_model, messages: list, **kwargs: Any) -> AsyncIterator:
+            with start_llm_span("watsonx.chat.stream", kwargs) as span:
+                self.logger.info("Starting chat stream request",
+                                 extra={"model": self_model.model_id})
+                try:
+                    # Calculate prompt tokens from all messages
+                    prompt_tokens = sum(
+                        count_text_tokens(msg.get('content', ''), self_model.model_id)
+                        for msg in messages)
+                    span.set_attribute("prompt.tokens", prompt_tokens)
+
+                    # Get last user message for policy checks
+                    last_user_msg = next((msg['content'] for msg in reversed(messages)
+                                        if msg.get('role') == 'user'), '')
+
+                    # Create streaming context for token tracking
+                    session_id = f"watsonx_chat_{id(self_model)}"
+                    accumulated_response = []
+
+                    async with self._token_tracker.stream_context("watsonx",
+                                                                session_id) as usage:
+                        usage.prompt_tokens = prompt_tokens
+
+                        async for chunk in func(self_model, messages, **kwargs):
+                            if chunk and isinstance(chunk, dict):
+                                content = chunk.get('token', {}).get('text', '')
+                                if content:
+                                    accumulated_response.append(content)
+                                    usage.completion_tokens += count_text_tokens(
+                                        content, self_model.model_id)
+                                yield chunk
+
+                        # After streaming completes, process accumulated response
+                        full_response = ''.join(accumulated_response)
+                        span.set_attributes({
+                            "completion.tokens": usage.completion_tokens,
+                            "total.tokens": usage.prompt_tokens + usage.completion_tokens,
+                            "model": self_model.model_id
+                        })
+
+                        if self._context and self._context.policy_engine:
+                            response_obj = {
+                                "result": {
+                                    "content": full_response
+                                }
+                            }
+                            enforce_policies(self._context,
+                                             span,
+                                             response_obj,
+                                             prompt=last_user_msg,
+                                             completion=full_response)
+
+                except Exception as e:
+                    span.record_exception(e)
+                    raise
+
+        return wrapper
+
     def patch(self) -> Dict[str, Any]:
         """Apply patches to watsonx.ai SDK functions."""
         if self._patched:
@@ -211,6 +272,7 @@ class WatsonxPatcher:
                 'generate': ModelInference.generate,
                 'generate_text': ModelInference.generate_text,
                 'chat': ModelInference.chat,
+                'chat_stream': ModelInference.chat_stream,
             }
 
             # Patch methods
@@ -219,6 +281,7 @@ class WatsonxPatcher:
             ModelInference.generate_text = self._wrap_generate_text(
                 ModelInference.generate_text)
             ModelInference.chat = self._wrap_chat(ModelInference.chat)
+            ModelInference.chat_stream = self._wrap_chat_stream(ModelInference.chat_stream)
 
             self._original_functions = original_functions
             self._patched = True
